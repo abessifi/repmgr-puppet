@@ -1,0 +1,30 @@
+#
+# This file is managed by puppet
+#
+
+cluster=<%= @cluster_name %>
+node=<%= @node_id %>
+node_name=<%= @node_name %>
+conninfo='host=<%=@conninfo_host%> user=<%=@conninfo_user%> dbname=<%=@conninfo_dbname%>'
+pg_bindir='<%=@pg_bindir%>'
+
+# The maximum amount of time we are going to wait before deciding the master has died and start failover procedure.
+master_response_timeout=<%=@master_response_timeout%>
+#
+# The number of times we will try to reconnect to master after a failure has been detected and before start failover procedure.
+reconnect_attempts=<%=@reconnect_attempts%>
+
+# The amount of time between retries to reconnect to master after a failure has been detected and before start failover procedure.
+reconnect_interval=<%=@reconnect_interval%>
+
+# configure behavior: manual or automatic.
+failover='<%=@failover%>'
+
+# The command executed to do the failover (including the PostgreSQL failover itself). The command must return 0 on success.
+# promote_command='/var/lib/postgresql/promote_command.sh'
+promote_command='<%=@promote_command%>'
+
+# The command executed to address the current standby to another Master. The command must return 0 on success.
+follow_command='<%=@follow_command%>'
+
+loglevel='<%=@loglevel%>'
