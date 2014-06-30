@@ -1,0 +1,4 @@
+- Postgresql package installation on Debian
+- Postgresql config file
+- Postgresql security access rules
+- repmgr depends on Postgresql
