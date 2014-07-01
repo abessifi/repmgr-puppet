@@ -3,6 +3,7 @@ class repmgr::postgresql {
     $pg_ctl = '/usr/lib/postgresql/9.1/bin/pg_ctl'
     $pg_logfile = '/var/log/postgresql/postgresql-9.1-main.log'
     $pg_data = '/var/lib/postgresql/9.1/main'
+    $pg_configdir = '/etc/postgresql/9.1/main'
 
     service {'postgresql':
         ensure  => running,
@@ -16,4 +17,27 @@ class repmgr::postgresql {
         restart => "sudo -u postgres $pg_ctl -D $pg_data reload",
     }
 
+    file {"$pg_configdir/postgresql.conf.master":
+        source => 'puppet:///modules/repmgr/postgresql.conf.master',
+        ensure => present,
+        owner  => postgres,
+        group  => postgres,
+        mode   => 0644,
+    }
+
+    file {"$pg_configdir/postgresql.conf.slave":
+        source => 'puppet:///modules/repmgr/postgresql.conf.slave',
+        ensure => present,
+        owner  => postgres,
+        group  => postgres,
+        mode   => 0644,
+    }
+
+    file {"$pg_configdir/pg_hba.conf":
+        ensure  => present,
+        owner   => postgres,
+        group   => postgres,
+        mode    => '0640',
+        content => template('repmgr/pg_hba.conf.erb'),
+    }
 }

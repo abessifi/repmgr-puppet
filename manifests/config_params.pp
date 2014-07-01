@@ -20,7 +20,6 @@ define repmgr::config_params(
         owner     => repmgr,
         group     => repmgr,
         mode      => '0644',
-        # require => Package['repmgr-auto'],
         content   => template('repmgr/repmgr.conf.erb'),
         path      => '/etc/repmgr/repmgr.conf',
     }
