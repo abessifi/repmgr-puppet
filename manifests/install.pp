@@ -7,12 +7,10 @@ class repmgr::install inherits repmgr::params {
         name   => $repmgr::params::postgresql,
         ensure => present,
     }
-
     package {'postgresql_contrib':
         name   => $repmgr::params::postgresql_contrib,
         ensure => present,
     }
-
     package {'postgresql_server_dev':
         name   => $repmgr::params::postgresql_server_dev,
         ensure => present,

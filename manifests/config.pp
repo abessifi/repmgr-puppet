@@ -1,7 +1,11 @@
 class repmgr::config {
 
+    # Execute postgresql resources before repmgr.
+    require repmgr::postgresql
+
     Account['repmgr'] -> Repmgr::Config_params['repmgr_config_file']
 
+    # Create repmgr config dir
     file {'/etc/repmgr':
         ensure => 'directory',
         owner  => root,
@@ -9,6 +13,7 @@ class repmgr::config {
         mode   => '0755',
     }
 
+    # Generate repmgr config file
     repmgr::config_params {'repmgr_config_file':
         cluster_name => 'collections',
         node_id      => 1,
@@ -18,6 +23,7 @@ class repmgr::config {
         conninfo_dbname =>'repmgr',
     }
 
+    # Create repmgr user
     account {'repmgr':
         ensure => present,
     }
