@@ -55,7 +55,7 @@ define repmgr(
         $pg_cluster_subnet = '192.168.1.0/24'
 
         include repmgr::install
-#        include repmgr::config
+        include repmgr::config
     }
     else {
         fail("Master node not specified !")

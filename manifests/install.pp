@@ -1,28 +1,15 @@
-class repmgr::install inherits repmgr::params {
+class repmgr::install {
     
+    # repmgr depends on some postgresql packages
     require repmgr::postgresql
 
-/*
-    File['repmgr-package'] -> Package['repmgr-auto']
-
-    # Install Postgresql packages
-    package {'postgresql':
-        name   => $repmgr::params::postgresql,
-        ensure => present,
-    }
-    package {'postgresql_contrib':
-        name   => $repmgr::params::postgresql_contrib,
-        ensure => present,
-    }
-    package {'postgresql_server_dev':
-        name   => $repmgr::params::postgresql_server_dev,
-        ensure => present,
-    }
-    
     # repmgr needs rsync also
     package {'rsync':
         ensure => present,
     }
+
+    # Assert that repmgr-auto is uploaded the installed
+    File['repmgr-package'] -> Package['repmgr-auto']
 
     # Upload the repmgr deb package to be installed
     file {'repmgr-package':
@@ -44,8 +31,6 @@ class repmgr::install inherits repmgr::params {
             Package["$repmgr::params::postgresql"],
             Package["$repmgr::params::postgresql_contrib"],
             Package["$repmgr::params::postgresql_server_dev"]        
-        ],
+        ]
     }
-*/
-
 }

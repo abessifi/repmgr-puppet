@@ -1,8 +1,5 @@
 class repmgr::config {
 
-    # Execute postgresql resources before repmgr.
-    require repmgr::postgresql
-
     Account['repmgr'] -> Repmgr::Config_params['repmgr_config_file']
 
     # Create repmgr config dir

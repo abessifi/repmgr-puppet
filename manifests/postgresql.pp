@@ -5,7 +5,7 @@ class repmgr::postgresql inherits repmgr::params {
     $pg_data = '/var/lib/postgresql/9.1/main'
     $pg_configdir = '/etc/postgresql/9.1/main'
 
-    Package['postgresql'] -> Account['postgres'] -> File['postgresql-master-config'] -> Service['postgresql']
+    Package['postgresql'] -> Account['postgres'] -> Service['postgresql']
     
     # Install Postgresql packages
     package {'postgresql':
@@ -56,11 +56,21 @@ class repmgr::postgresql inherits repmgr::params {
         notify  => Service['postgresql-reload'],
     }
 
+    # Set postgresql master config file
+    exec {'set_pg_master_config':
+        path    => ['/bin'],
+        command => "cp -p $pg_configdir/postgresql.conf.master $pg_configdir/postgresql.conf",
+        notify  => Service['postgresql'],
+    }
+
     service {'postgresql':
         ensure  => running,
         status  => "sudo -u postgres $pg_ctl -D $pg_data status",
-        start   => "sudo -u postgres $pg_ctl -D $pg_data start -l $pg_logfile",
+        start   => "sudo -u postgres $pg_ctl -D $pg_data start -o '-c config_file=$pg_configdir/postgresql.conf -l $pg_logfile",
+        # The real Debian way is to use pg_ctlcluster like so :
+        # sudo -u postgres pg_ctlcluster 9.3 main start 
         stop    => "sudo -u postgres $pg_ctl -D $pg_data stop -l $pg_logfile",
+        restart => "sudo -u postgres $pg_ctl -D $pg_data restart -l $pg_logfile",
     }
 
     service {'postgresql-reload':
