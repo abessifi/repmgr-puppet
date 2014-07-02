@@ -16,6 +16,11 @@ class repmgr::install inherits repmgr::params {
         ensure => present,
     }
     
+    # repmgr needs rsync also
+    package {'rsync':
+        ensure => present,
+    }
+
     # Upload the repmgr deb package to be installed
     file {'repmgr-package':
         ensure  => present,
@@ -32,6 +37,7 @@ class repmgr::install inherits repmgr::params {
         ensure    => present,
         source    => '/var/cache/apt/archives/postgresql-repmgr-9.0_1.0.0.deb',
         require => [
+            Package["rsync"],
             Package["$postgresql"],
             Package["$postgresql_contrib"],
             Package["$postgresql_server_dev"]        
