@@ -12,7 +12,7 @@ class repmgr::postgresql {
         stop    => "sudo -u postgres $pg_ctl -D $pg_data stop -l $pg_logfile",
     }
 
-    service {'poqtgresql-reload':
+    service {'postgresql-reload':
         status  => "sudo -u postgres $pg_ctl -D $pg_data status",
         restart => "sudo -u postgres $pg_ctl -D $pg_data reload",
     }
@@ -39,5 +39,6 @@ class repmgr::postgresql {
         group   => postgres,
         mode    => '0640',
         content => template('repmgr/pg_hba.conf.erb'),
+        notify  => Service['postgresql-reload'],
     }
 }
