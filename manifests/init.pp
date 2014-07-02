@@ -13,12 +13,13 @@
 # [*cluster*]
 #   The name of the cluster you deploy postgresql nodes.
 #   By default cluster's value is the repmgr resource title.
-#   This parameter is required.
+#   This parameter is required and must have the same value for all nodes in the same cluster.
 #
 # [*master*]
-#  The short name, fqdn or the IP address of the postgresql master node.
-#  This parameter is required.
-#
+#  If true, the node will be configured as postgresql master server.
+#  The short name or the FQDN of the postgresql master node.
+#  This parameter is required (default to false).
+#  
 #
 #
 #
@@ -32,14 +33,16 @@
 # Ahmed Bessifi <ahmed.bessifi@gmail.com>
 #
 
-
 define repmgr(
+
     $cluster = $title,
     $cluster_subnet = undef,
     $master = undef,
-    $slaves = [],
+    $slave = undef,
     $witness = undef,
+    $name = undef,
     $ensure = present,
+    
     ){
 
     unless $cluster {
@@ -47,17 +50,16 @@ define repmgr(
         fail("Cluster name not specified !")
     }
 
-    if $master {
+    if $master == true {
     
+        $pg_cluster_subnet = '192.168.1.0/24'
+
+        include repmgr::install
+#        include repmgr::config
     }
     else {
         fail("Master node not specified !")
     }
-
-    $pg_cluster_subnet = '192.168.1.0/24'
-
-    include repmgr::install
-    include repmgr::config
 
 }
 /*

@@ -1,5 +1,8 @@
 class repmgr::install inherits repmgr::params {
+    
+    require repmgr::postgresql
 
+/*
     File['repmgr-package'] -> Package['repmgr-auto']
 
     # Install Postgresql packages
@@ -38,10 +41,11 @@ class repmgr::install inherits repmgr::params {
         source    => '/var/cache/apt/archives/postgresql-repmgr-9.0_1.0.0.deb',
         require => [
             Package["rsync"],
-            Package["$postgresql"],
-            Package["$postgresql_contrib"],
-            Package["$postgresql_server_dev"]        
+            Package["$repmgr::params::postgresql"],
+            Package["$repmgr::params::postgresql_contrib"],
+            Package["$repmgr::params::postgresql_server_dev"]        
         ],
     }
+*/
 
 }
