@@ -8,6 +8,10 @@ node_name=<%= @node_name %>
 conninfo='host=<%=@conninfo_host%> user=<%=@conninfo_user%> dbname=<%=@conninfo_dbname%>'
 pg_bindir='<%=@pg_bindir%>'
 
+# rsync runs over ssh
+# Disable host ssh key checking
+ssh_options=-o "StrictHostKeyChecking no"
+
 # The maximum amount of time we are going to wait before deciding the master has died and start failover procedure.
 master_response_timeout=<%=@master_response_timeout%>
 #
@@ -27,4 +31,8 @@ promote_command='<%=@promote_command%>'
 # The command executed to address the current standby to another Master. The command must return 0 on success.
 follow_command='<%=@follow_command%>'
 
+# Redirect stderr to a logfile
 loglevel='<%=@loglevel%>'
+
+# Change monitoring interval; default is 2s
+monitor_interval_secs=<%=@monitor_interval%>

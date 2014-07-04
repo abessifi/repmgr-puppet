@@ -43,15 +43,24 @@ define repmgr(
     
 ){
 
+    # Some basic tests
+    if $cluster == undef {
+        fail("Cluster name is required !")
+    }
+    if $name == undef {
+        fail("Node name is required !")
+    }
+    if $id == undef {
+        fail("Node id is required !")
+    }
+    if $subnet == undef {
+        fail("Cluster subnet IP address is not correct !")
+    }
+
+    # Setting up repmgr regarding node's role
     case $role {
 
         'master' : {
-
-            if $cluster == undef {
-                fail("Cluster name not specified !")
-            }
-            
-            # Continue with other tests
 
             class { 'repmgr::install':
                 node_role         => $role,

@@ -15,6 +15,7 @@ class repmgr::config (
     $promote_command = 'repmgr -f /etc/repmgr/repmgr.conf standby promote'
     $follow_command  = '/var/lib/postgresql/follow_command.sh'
     $loglevel = 'debug'
+    $monitor_interval = 5
 
     Account['repmgr'] -> File['repmgr_config_file']
 
