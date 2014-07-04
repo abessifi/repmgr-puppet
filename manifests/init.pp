@@ -34,40 +34,38 @@
 #
 
 define repmgr(
-
-    $cluster = $title,
-    $cluster_subnet = undef,
-    $master = undef,
-    $slave = undef,
-    $witness = undef,
-    $name = undef,
-    $ensure = present,
+    $ensure = 'present',
+    $role = undef,
+    $name = $title,
+    $id = undef,
+    $cluster = undef,
+    $subnet = undef,
     
-    ){
+){
 
-    unless $cluster {
-       
-        fail("Cluster name not specified !")
-    }
+    case $role {
 
-    if $master == true {
-    
-        $pg_cluster_subnet = '192.168.1.0/24'
+        'master' : {
 
-        include repmgr::install
-        include repmgr::config
-    }
-    else {
-        fail("Master node not specified !")
+            if $cluster == undef {
+                fail("Cluster name not specified !")
+            }
+            
+            # Continue with other tests
+
+            class { 'repmgr::install':
+                node_role         => $role,
+                pg_cluster_subnet => $subnet,
+            }
+            
+            class { 'repmgr::config':
+                cluster_name  => $cluster,
+                node_id       => $id,
+                node_name     => $name,
+                conninfo_host => $name,
+            }
+        }
+        default : { fail("Invalid value given for role : $role. Must be one of master|slave|witness")  }
     }
 
 }
-/*
-class repmgr {
-
-    $pg_cluster_subnet = '192.168.1.0/24'
-
-    include repmgr::install
-    include repmgr::config
-}
-*/

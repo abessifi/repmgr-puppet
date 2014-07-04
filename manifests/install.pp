@@ -1,7 +1,25 @@
-class repmgr::install {
-    
+class repmgr::install(
+
+    $node_role = undef,
+    $pg_cluster_subnet = undef,
+){
+      
     # repmgr depends on some postgresql packages
-    require repmgr::postgresql
+    include repmgr::postgresql
+
+    $pg_configdir = '/etc/postgresql/9.1/main'
+
+    # Apply the correct postgresql config file (master|slave)
+    if $node_role == 'master' {
+        exec {'set_pg_master_config':
+            path    => ['/bin'],
+            command => "cp -p $pg_configdir/postgresql.conf.master $pg_configdir/postgresql.conf",
+            notify  => Service['postgresql'],
+        }
+    }
+    elsif $node_role in ['slave', 'witness'] {
+        ## Not yet implemented !
+    }
 
     # repmgr needs rsync also
     package {'rsync':
