@@ -71,6 +71,7 @@ define repmgr(
             }
             
             class { 'repmgr::config':
+                node_role         => $role,
                 cluster_name   => $cluster,
                 node_id        => $id,
                 node_name      => $name,

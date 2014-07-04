@@ -105,8 +105,6 @@ host    all             all             ::1/128                 md5
 #
 # allow streaming replication and repmgr operations
 #
-
-host	all		        postgres	<%= @pg_cluster_subnet %>	trust
 host	repmgr		    repmgr		127.0.0.1/32	trust
 host	repmgr		    repmgr		<%= @pg_cluster_subnet %>	trust
 host	replication	    all		    <%= @pg_cluster_subnet %>	trust
