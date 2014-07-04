@@ -40,7 +40,7 @@ define repmgr(
     $id = undef,
     $cluster = undef,
     $subnet = undef,
-    
+    $repmgr_key = undef, 
 ){
 
     # Some basic tests
@@ -56,6 +56,9 @@ define repmgr(
     if $subnet == undef {
         fail("Cluster subnet IP address is not correct !")
     }
+    if $repmgr_key == undef {
+        fail("repmgr public key is required to setup access between nodes !")
+    }
 
     # Setting up repmgr regarding node's role
     case $role {
@@ -68,10 +71,11 @@ define repmgr(
             }
             
             class { 'repmgr::config':
-                cluster_name  => $cluster,
-                node_id       => $id,
-                node_name     => $name,
-                conninfo_host => $name,
+                cluster_name   => $cluster,
+                node_id        => $id,
+                node_name      => $name,
+                conninfo_host  => $name,
+                repmgr_ssh_key => $repmgr_key,
             }
         }
         default : { fail("Invalid value given for role : $role. Must be one of master|slave|witness")  }

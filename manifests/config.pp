@@ -4,6 +4,7 @@ class repmgr::config (
     $node_id = undef,
     $node_name = undef,
     $conninfo_host = undef,
+    $repmgr_ssh_key = undef,
 ){
     $conninfo_user = 'repmgr'
     $conninfo_dbname = 'repmgr'
@@ -39,6 +40,12 @@ class repmgr::config (
 
     # Create repmgr user
     account {'repmgr':
-        ensure => present,
+        ensure           => present,
+        ssh_keys         => {
+            'repmgr_key' => {
+                type     => 'ssh-rsa',
+                key      => $repmgr_ssh_key,
+             }
+        }
     }
 }
