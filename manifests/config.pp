@@ -16,10 +16,11 @@ class repmgr::config (
     $failover = 'automatic'
     $promote_command = 'repmgr -f /etc/repmgr/repmgr.conf standby promote'
     $follow_command  = '/var/lib/postgresql/follow_command.sh'
-    $loglevel = 'debug'
+    $loglevel = 'DEBUG'
     $monitor_interval = 5
 
     $pg_contribdir = '/usr/share/postgresql/9.1/contrib'
+    $repmgr_config_file = '/etc/repmgr/repmgr.conf'
 
     Account['repmgr'] -> File['repmgr_config_file']
 
@@ -38,7 +39,7 @@ class repmgr::config (
         group     => repmgr,
         mode      => '0644',
         content   => template('repmgr/repmgr.conf.erb'),
-        path      => '/etc/repmgr/repmgr.conf',
+        path      => $repmgr_config_file,
     }
 
     # Create repmgr user
@@ -53,31 +54,30 @@ class repmgr::config (
     }
 
     # Create the user and database to manage replication
-    Exec['create_repmgr_db_user'] -> Exec['create_repmgr_db'] -> Exec['insert_repmgr_funcs']
+    Exec['create_repmgr_db_user'] -> Exec['create_repmgr_db'] -> Exec['master_register']
 
     if $node_role == 'master' {
         exec {'create_repmgr_db_user':
-            path    => ['/bin/','/usr/bin'],
-            command => 'createuser -s repmgr',
-            user    => 'postgres',
-            #create user if not exist
-            #onlyif  => [      
-            # 'sudo -u postgres -- [ `psql template1 -c "\du" | grep -c postgres` -eq "0" ] && false || true'
-            #],
+            path     => ['/bin/','/usr/bin'],
+            command  => 'createuser -s repmgr',
+            user     => 'postgres',
+            onlyif   => '[ `psql template1 -c "\du" | grep -c repmgr` -eq "0" ]',
         }
         exec{'create_repmgr_db':
-            path    => ['/bin', '/usr/bin'],
-            command => 'createdb -O repmgr repmgr',
-            user    => 'postgres',
-            #create db if not exist
-            #onlyif =>  [
-            # 'sudo -u postgres -- psql -l | grep repmgr'
-            #],
+            path     => ['/bin', '/usr/bin'],
+            command  => "createdb -O repmgr repmgr && psql -f $pg_contribdir/repmgr_funcs.sql repmgr",
+            user     => 'postgres',
+            onlyif   => '[ `psql -l | grep -c repmgr` -eq "0" ]',
         }
-        exec {'insert_repmgr_funcs':
-            path    => ['/usr/bin'],
-            command => "psql -f $pg_contribdir/repmgr_funcs.sql repmgr",
+
+        exec {'master_register':
+            path    => ['/bin', '/usr/bin'],
+            command => "repmgr -f $repmgr_config_file master register",
             user    => 'postgres',
+            onlyif  => [
+                "psql -l | grep repmgr",
+                "[ `repmgr -f $repmgr_config_file cluster show | grep -c master` -eq 0 ]"
+            ],
         }
     }
     elsif $node_role in ['slave', 'witness'] {

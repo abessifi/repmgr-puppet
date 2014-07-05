@@ -1,2 +1,2 @@
-- Postgresql config file
-- Postgresql security access rules
+- Update repmgr.conf according to this issue :
+    Cannot detect log level debug (use any of DEBUG, INFO, NOTICE, WARNING, ERR, ALERT, CRIT or EMERG)

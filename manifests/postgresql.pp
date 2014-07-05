@@ -55,13 +55,6 @@ class repmgr::postgresql inherits repmgr::params {
         content => template('repmgr/pg_hba.conf.erb'),
         notify  => Service['postgresql-reload'],
     }
-/*
-    exec {'set_pg_master_config':
-        path    => ['/bin'],
-        command => "cp -p $pg_configdir/postgresql.conf.master $pg_configdir/postgresql.conf",
-        notify  => Service['postgresql'],
-    }
-*/
     service {'postgresql':
         ensure  => running,
         status  => "sudo -u postgres $pg_ctl -D $pg_data status",

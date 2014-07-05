@@ -11,13 +11,13 @@ class repmgr::install(
 
     # Apply the correct postgresql config file (master|slave)
     if $node_role == 'master' {
-        exec {'set_pg_master_config':
+        /*exec {'set_pg_master_config':
             path    => ['/bin'],
             # NOTE: this must be improved in the way to copy one time the master config file.
             # Otherwise, postgresql server will restart every time this resource is sourced.
             command => "cp -p $pg_configdir/postgresql.conf.master $pg_configdir/postgresql.conf",
             notify  => Service['postgresql'],
-        }
+        }*/
     }
     elsif $node_role in ['slave', 'witness'] {
         ## Not yet implemented !
