@@ -68,10 +68,10 @@ define repmgr(
             class { 'repmgr::install':
                 node_role         => $role,
                 pg_cluster_subnet => $subnet,
-            }
+            } ->
             
             class { 'repmgr::config':
-                node_role         => $role,
+                node_role      => $role,
                 cluster_name   => $cluster,
                 node_id        => $id,
                 node_name      => $name,
@@ -79,6 +79,14 @@ define repmgr(
                 repmgr_ssh_key => $repmgr_key,
             }
         }
+
+        'slave' : {
+            /*class { 'repmgr::install':
+                node_role         => $role,
+                pg_cluster_subnet => $subnet,
+            }*/
+        }
+
         default : { fail("Invalid value given for role : $role. Must be one of master|slave|witness")  }
     }
 
