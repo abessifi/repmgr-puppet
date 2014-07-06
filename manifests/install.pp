@@ -10,16 +10,11 @@ class repmgr::install(
     $pg_configdir = '/etc/postgresql/9.1/main'
 
     # Apply the correct postgresql config file (master|slave)
-    if $node_role == 'master' {
-        exec {'set_pg_master_config':
-            path    => ['/bin', '/usr/bin'],
-            command => "cp -p $pg_configdir/postgresql.conf.master $pg_configdir/postgresql.conf",
-            onlyif  => '[ `diff postgresql.conf postgresql.conf.master | wc -l` -ne 0 ]',
-            notify  => Service['postgresql'],
-        }
-    }
-    elsif $node_role in ['slave', 'witness'] {
-        ## Not yet implemented !
+    exec {'set_postgres_config':
+        path    => ['/bin', '/usr/bin'],
+        command => "cp -p $pg_configdir/postgresql.conf.$node_role $pg_configdir/postgresql.conf",
+        onlyif  => "[ `diff postgresql.conf postgresql.conf.$node_role | wc -l` -ne 0 ]",
+        notify  => Service['postgresql'],
     }
 
     # repmgr needs rsync also

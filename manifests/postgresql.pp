@@ -23,11 +23,6 @@ class repmgr::postgresql inherits repmgr::params {
         ensure => present,
     }
 
-    account {'postgres':
-        ensure   => present,
-        home_dir => '/var/lib/postgresql',
-    }
-
     file {'postgresql-master-config':
         path   => "$pg_configdir/postgresql.conf.master",
         source => 'puppet:///modules/repmgr/postgresql.conf.master',

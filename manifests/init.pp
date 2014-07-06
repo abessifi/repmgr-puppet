@@ -38,9 +38,12 @@ define repmgr(
     $role = undef,
     $name = $title,
     $id = undef,
+    $master = undef,
     $cluster = undef,
     $subnet = undef,
-    $repmgr_key = undef, 
+    $repmgr_key = undef,
+    # Override postgresql directory
+    $force = false, 
 ){
 
     # Some basic tests
@@ -81,10 +84,23 @@ define repmgr(
         }
 
         'slave' : {
-            /*class { 'repmgr::install':
+            if  $master == undef {
+                fail("Master node name required !")
+            }
+            class { 'repmgr::install':
                 node_role         => $role,
                 pg_cluster_subnet => $subnet,
-            }*/
+            } ->
+            class { 'repmgr::config':
+                node_role      => $role,
+                cluster_name   => $cluster,
+                node_id        => $id,
+                node_name      => $name,
+                conninfo_host  => $name,
+                repmgr_ssh_key => $repmgr_key,
+                master_node    => $master,
+                force_action   => $force,
+            }
         }
 
         default : { fail("Invalid value given for role : $role. Must be one of master|slave|witness")  }
