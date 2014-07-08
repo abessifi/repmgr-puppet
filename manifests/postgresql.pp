@@ -57,7 +57,7 @@ class repmgr::postgresql inherits repmgr::params {
         start   => "sudo -u postgres $pg_ctl -D $pg_data start -o '-c config_file=$pg_configdir/postgresql.conf' -l $pg_logfile && sleep 10",
         # The real Debian way is to use pg_ctlcluster like so :
         # sudo -u postgres pg_ctlcluster 9.3 main start 
-        stop    => "sudo -u postgres $pg_ctl -D $pg_data stop -l $pg_logfile",
+        stop    => "sudo -u postgres $pg_ctl -D $pg_data stop -m fast -l $pg_logfile",
         restart => "sudo -u postgres $pg_ctl -D $pg_data restart -l $pg_logfile && sleep 10",
     }
 
