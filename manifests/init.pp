@@ -10,27 +10,74 @@
 #
 # == Parameters
 #
-# [*cluster*]
-#   The name of the cluster you deploy postgresql nodes.
-#   By default cluster's value is the repmgr resource title.
-#   This parameter is required and must have the same value for all nodes in the same cluster.
+# [*ensure*]
+# 
+# [*role*]
+#
+# [*name*]
+# 
+# [*id*]
+#
+# [*force*]
+#   If true, force potentially dangerous operations to happen.
+#   Using this option with :
+#      master => force bringing the former master up as a standby
+#      slave  => forced clone, which overwrites existing data rather than assuming
+#                it starts with an empty database directory tree
+#   Default to false.
 #
 # [*master*]
-#  If true, the node will be configured as postgresql master server.
-#  The short name or the FQDN of the postgresql master node.
-#  This parameter is required (default to false).
-#  
+#   The short name (or the FQDN) of the master node that the slave will follow.
 #
+# [*cluster*]
+#   The name of the cluster within you deploy postgresql nodes.
+#   This parameter must be identical for all nodes in the same cluster.
+#   Default to undef.
 #
+# [*subnet*]
+#   The IP address of the subnet the postgres nodes are connected to (e.g '192.168.1.0/24').
+#   The subnet value is used to set postgresql security access rules (pg_hba.conf).
+#   Default to undef.
 #
+# [*ssh_key*]
+#   The postgres user SSH public key.
+#   Default to undef.
 #
 # == Examples
 #
+#   Postgresql Master Config
 #
+#   repmgr {'pg_master':
+#       ensure     => present,
+#       role       => master,
+#       name       => 'node1',
+#       id         => 1,
+#       cluster    => 'pg_cluster_name',
+#       subnet     => '192.168.1.0/24',
+#       ssh_key    => 'AAAAB3Nza....M366wq5',
+#   }
+#
+#   Postgresql Slave Config
+#
+#   repmgr {'pg_slave':
+#       ensure     => present,
+#       role       => slave,
+#       name       => 'node2',
+#       id         => 2,
+#       master     => 'node1',
+#       force      => true,
+#       cluster    => 'pg_cluster_name',
+#       subnet     => '192.168.1.0/24',
+#       ssh_key    => 'AAAAB3Nza....M366wq5',
+#   }
 #
 # == Authors
 #
 # Ahmed Bessifi <ahmed.bessifi@gmail.com>
+#
+# == Licence
+#
+# GNU GPLv2 - Copyright (C) 2014 Ahmed Bessifi
 #
 
 define repmgr(
@@ -41,8 +88,7 @@ define repmgr(
     $master = undef,
     $cluster = undef,
     $subnet = undef,
-    $repmgr_key = undef,
-    # Override postgresql directory
+    $ssh_key = undef,
     $force = false, 
 ){
 
@@ -59,7 +105,7 @@ define repmgr(
     if $subnet == undef {
         fail("Cluster subnet IP address is not correct !")
     }
-    if $repmgr_key == undef {
+    if $ssh_key == undef {
         fail("repmgr public key is required to setup access between nodes !")
     }
 
@@ -79,7 +125,7 @@ define repmgr(
                 node_id        => $id,
                 node_name      => $name,
                 conninfo_host  => $name,
-                repmgr_ssh_key => $repmgr_key,
+                repmgr_ssh_key => $ssh_key,
             }
         }
 
@@ -97,7 +143,7 @@ define repmgr(
                 node_id        => $id,
                 node_name      => $name,
                 conninfo_host  => $name,
-                repmgr_ssh_key => $repmgr_key,
+                repmgr_ssh_key => $ssh_key,
                 master_node    => $master,
                 force_action   => $force,
             }
@@ -105,5 +151,4 @@ define repmgr(
 
         default : { fail("Invalid value given for role : $role. Must be one of master|slave|witness")  }
     }
-
 }
