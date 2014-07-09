@@ -1,1 +1,3 @@
-fix stop_standby
+Manage repmgrd with init script.
+Set repmgrd default file.
+Refactor code (default params)

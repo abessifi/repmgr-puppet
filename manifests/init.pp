@@ -11,12 +11,23 @@
 # == Parameters
 #
 # [*ensure*]
-# 
+#   The state at which to maintain the node.
+#   Can be one of "present" or "absent".
+#   Present will install and configure repmgr according to "role" value (master or slave).
+#   Absent will simply purge repmgr installation (config files are included).
+#   Default to "present".
+#
 # [*role*]
+#   Is the type of the node (master | slave | witness).
+#   Default to undef.
 #
 # [*name*]
-# 
+#   The short name (or the FQDN) of the node. E.g : node1 | node1.foo.bar
+#   Default to undef
+#
 # [*id*]
+#   Is an identifier for every node. It is a number.
+#   Default to undef.
 #
 # [*force*]
 #   If true, force potentially dangerous operations to happen.
