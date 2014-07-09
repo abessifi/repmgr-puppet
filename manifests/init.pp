@@ -124,42 +124,34 @@ define repmgr(
     case $role {
 
         'master' : {
-
-            class { 'repmgr::install':
-                node_role         => $role,
-                pg_cluster_subnet => $subnet,
-            } ->
-            
-            class { 'repmgr::config':
-                node_role      => $role,
-                cluster_name   => $cluster,
-                node_id        => $id,
-                node_name      => $name,
-                conninfo_host  => $name,
-                repmgr_ssh_key => $ssh_key,
-            }
+            # Do something special if master
         }
 
         'slave' : {
             if  $master == undef {
                 fail("Master node name required !")
             }
-            class { 'repmgr::install':
-                node_role         => $role,
-                pg_cluster_subnet => $subnet,
-            } ->
-            class { 'repmgr::config':
-                node_role      => $role,
-                cluster_name   => $cluster,
-                node_id        => $id,
-                node_name      => $name,
-                conninfo_host  => $name,
-                repmgr_ssh_key => $ssh_key,
-                master_node    => $master,
-                force_action   => $force,
-            }
         }
-
+        'witness' : {
+            # Do something special if witness
+        }
         default : { fail("Invalid value given for role : $role. Must be one of master|slave|witness")  }
     }
+
+    class { 'repmgr::install':
+        node_role         => $role,
+        pg_cluster_subnet => $subnet,
+    } ->
+    
+    class { 'repmgr::config':
+        node_role      => $role,
+        cluster_name   => $cluster,
+        node_id        => $id,
+        node_name      => $name,
+        conninfo_host  => $name,
+        repmgr_ssh_key => $ssh_key,
+        master_node    => $master,
+        force_action   => $force,
+}
+
 }

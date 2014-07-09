@@ -1,19 +1,17 @@
-class repmgr::install(
+class repmgr::install (
 
     $node_role = undef,
     $pg_cluster_subnet = undef,
 ){
-      
+  
     # repmgr depends on some postgresql packages
     include repmgr::postgresql
-
-    $pg_configdir = '/etc/postgresql/9.1/main'
 
     # Apply the correct postgresql config file (master|slave)
     exec {'set_postgres_config':
         path    => ['/bin', '/usr/bin'],
-        command => "cp -p $pg_configdir/postgresql.conf.$node_role $pg_configdir/postgresql.conf",
-        onlyif  => "[ `diff postgresql.conf postgresql.conf.$node_role | wc -l` -ne 0 ]",
+        command => "cp -p ${repmgr::params::pg_config_file}.${node_role} $repmgr::params::pg_config_file",
+        onlyif  => "[ `diff $repmgr::params::pg_config_file ${repmgr::params::pg_config_file}.${node_role} | wc -l` -ne 0 ]",
         notify  => Service['postgresql'],
     }
 

@@ -123,7 +123,6 @@ class repmgr::config (
         exec {'clone_master':
             path    => ['/usr/bin'],
             command => "sudo -u postgres repmgr -f $repmgr_config_file -D $pg_data -d repmgr -U repmgr -R postgres standby clone $master_node $repmgr_opts",
-            #notify  => Service['postgresql'],
         }
         # Register the standby server if it's not
         exec {'standby_register':
