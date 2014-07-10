@@ -1,5 +1,0 @@
-fix bug on db slave "the database system is starting up" => hot_standby = on in slave config file
-Manage repmgrd with init script.
-Set repmgrd default file.
-Refactor code (default params)
-what if ensure is "absent"
