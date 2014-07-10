@@ -211,7 +211,7 @@ shared_buffers = 24MB			# min 128kB
 
 # These settings are ignored on a master server
 
-#hot_standby = on			# "on" allows queries during recovery
+hot_standby = on			# "on" allows queries during recovery
 					# (change requires restart)
 #max_standby_archive_delay = 30s	# max delay before canceling queries
 					# when reading WAL from archive;
