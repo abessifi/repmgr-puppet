@@ -111,8 +111,14 @@ class repmgr::config (
     }
     elsif $node_role in ['slave', 'witness'] {
 
-        Exec['stop_standby'] -> Exec['clone_master'] ~> Service['postgresql'] -> Exec['standby_register'] -> Exec['start_repmgrd']
-        
+        Exec['stop_repmgrd'] -> Exec['stop_standby'] -> Exec['clone_master'] ~> Service['postgresql'] -> Exec['standby_register'] -> Exec['start_repmgrd']
+
+        # Stop repmgrd if running
+        exec {'stop_repmgrd':
+            path    => ['/bin','/usr/bin'],
+            command => 'killall repmgrd',
+            onlyif   => "[ `pidof repmgrd` ]",
+        }
         # Stop standby node if running
         exec {'stop_standby':
             path => ['/usr/bin', '/usr/lib/postgresql/9.1/bin'],
