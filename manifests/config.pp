@@ -33,6 +33,38 @@ class repmgr::config (
 
     Account['postgres'] -> File['repmgr_config_file'] -> File['pg_ssh_config']
 
+    # NOTE : This is a quick way to check if id_rsa private key exists.
+    # This exec may be improved (puppetized using fail() function) to be more verbose 
+    # and assert that puppet fails when condition is not satisfied (id_rsa not found)
+    exec {'check_ssh_priv_key':
+        path      => ['/usr/bin', '/bin'],
+        command   => 'echo "Postgres private key doesn\'t exist. Make sure /var/lib/postgresql/.ssh/id_rsa exist and then perform puppet again"',
+        onlyif    => '[ ! -f /var/lib/postgresql/.ssh/id_rsa ]',
+        logoutput => true,
+        returns   => 1,
+        before    => Account['postgres'],
+    }
+
+    # Assert postgres user exists
+    account {'postgres':
+        ensure => present,
+        home_dir   => '/var/lib/postgresql',
+        ssh_keys         => {
+            'repmgr_key' => {
+                type     => 'ssh-rsa',
+                key      => $repmgr_ssh_key,
+             }
+        }
+    }
+
+    file {'pg_ssh_config':
+        path  => '/var/lib/postgresql/.ssh/config',
+        owner => postgres,
+        group => postgres,
+        mode  => 644,
+        content => 'StrictHostKeyChecking no',
+    }
+
     # Create repmgr config dir
     file {'/etc/repmgr':
         ensure => 'directory',
@@ -60,25 +92,6 @@ class repmgr::config (
         mode   => 644,
     }
 
-    # Assert postgres user exists
-    account {'postgres':
-        ensure => present,
-        home_dir   => '/var/lib/postgresql',
-        ssh_keys         => {
-            'repmgr_key' => {
-                type     => 'ssh-rsa',
-                key      => $repmgr_ssh_key,
-             }
-        }
-    }
-
-    file {'pg_ssh_config':
-        path  => '/var/lib/postgresql/.ssh/config',
-        owner => postgres,
-        group => postgres,
-        mode  => 644,
-        content => 'StrictHostKeyChecking no',
-    }
 
     if $node_role == 'master' {
         

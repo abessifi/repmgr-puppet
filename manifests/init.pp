@@ -14,11 +14,12 @@
 #   The state at which to maintain the node.
 #   Can be one of "present" or "absent".
 #   Present will install and configure repmgr according to "role" value (master or slave).
-#   Absent will simply purge repmgr installation (config files are included).
+#   Absent, not yet implemented, will simply purge repmgr installation (config files are included).
 #   Default to "present".
 #
 # [*role*]
 #   Is the type of the node (master | slave | witness).
+#   PS : Witness config is not yet supported !
 #   Default to undef.
 #
 # [*name*]
@@ -53,6 +54,9 @@
 # [*ssh_key*]
 #   The postgres user SSH public key.
 #   Default to undef.
+#
+# == Requires:
+#    puppet-account from https://github.com/vaytess/puppet-account
 #
 # == Examples
 #
