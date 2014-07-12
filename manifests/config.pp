@@ -71,6 +71,7 @@ class repmgr::config (
         owner  => root,
         group  => root,
         mode   => '0755',
+        before => File['repmgr_config_file'],
     }
 
     # Generate repmgr config file
@@ -134,20 +135,22 @@ class repmgr::config (
         }
         # Stop standby node if running
         exec {'stop_standby':
-            path => ['/usr/bin', '/usr/lib/postgresql/9.1/bin'],
+            path => ['/bin', '/usr/bin', '/usr/lib/postgresql/9.1/bin'],
             command => "sudo -u postgres $pg_ctl -D $pg_data stop -m fast -l $pg_logfile",
             onlyif  => "[ `killall -0 postgres 2>&1 | grep -c postgres` -eq 0 ]",
         }
         # Clone the master and start standby
         exec {'clone_master':
-            path    => ['/usr/bin'],
+            path    => ['/bin', '/usr/bin'],
             command => "sudo -u postgres repmgr -f $repmgr_config_file -D $pg_data -d repmgr -U repmgr -R postgres standby clone $master_node $repmgr_opts",
+            onlyif  => "rm -r $pg_data",
+            #onlyif  => "sudo -u postgres repmgr -f $repmgr_config_file -D $pg_data -d repmgr -U repmgr -R postgres standby clone $master_node $repmgr_opts; [ $? -ne 0 ] && killall postgres && rm -r $pg_data || false",
         }
         # Register the standby server if it's not
         exec {'standby_register':
-            path    => ['/bin', '/usr/bin'],
-            command => "sudo -u postgres repmgr -f $repmgr_config_file standby register",
-            onlyif  => "[ `repmgr -f $repmgr_config_file cluster show | grep -c 'standby | host=$node_name'` -eq 0 ]"
+            path      => ['/bin', '/usr/bin'],
+            command   => "sudo -u postgres repmgr -f $repmgr_config_file standby register",
+            onlyif    => "[ `repmgr -f $repmgr_config_file cluster show | grep -c 'standby | host=$node_name'` -eq 0 ]",
         }
         # Start repmgrd daemon
         # NOTE running repmgrd via an init script will be better
