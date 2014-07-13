@@ -56,7 +56,7 @@
 #   Default to undef.
 #
 # == Requires:
-#    puppet-account from https://github.com/vaytess/puppet-account
+#    puppet-account >> https://github.com/vaytess/puppet-account
 #
 # == Examples
 #
@@ -124,6 +124,9 @@ define repmgr(
         fail("repmgr public key is required to setup access between nodes !")
     }
 
+    # Set a default $PATH for all execs
+    Exec { path => ['/bin', '/usr/bin', '/usr/lib/postgresql/9.1/bin'] }
+
     # Setting up repmgr regarding node's role
     case $role {
 
@@ -145,8 +148,7 @@ define repmgr(
     class { 'repmgr::install':
         node_role         => $role,
         pg_cluster_subnet => $subnet,
-    } ->
-    
+    } -> 
     class { 'repmgr::config':
         node_role      => $role,
         cluster_name   => $cluster,
@@ -156,6 +158,6 @@ define repmgr(
         repmgr_ssh_key => $ssh_key,
         master_node    => $master,
         force_action   => $force,
-}
+    }
 
 }

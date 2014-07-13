@@ -1,3 +1,5 @@
+$repmgr_options = '--verbose'
+
 class repmgr::config (
 
     $node_role = undef,
@@ -11,58 +13,18 @@ class repmgr::config (
 ){
     $conninfo_user = 'repmgr'
     $conninfo_dbname = 'repmgr'
-    $pg_bindir = '/usr/lib/postgresql/9.1/bin'
+    $pg_bindir = $repmgr::params::pg_bin_dir 
     $master_response_timeout = 20
     $reconnect_attempts = 4
     $reconnect_interval = 10
     $failover = 'automatic'
-    $promote_command = 'repmgr -f /etc/repmgr/repmgr.conf standby promote'
-    $follow_command  = '/var/lib/postgresql/follow_command.sh'
+    $promote_command = "repmgr -f $repmgr::params::repmgr_conf_file standby promote"
+    $follow_command  = "$repmgr::params::pg_home_dir/follow_command.sh"
     $loglevel = 'DEBUG'
     $monitor_interval = 5
 
-    $pg_ctl = '/usr/lib/postgresql/9.1/bin/pg_ctl'
-    $pg_logfile = '/var/log/postgresql/postgresql-9.1-main.log'
-    $pg_data = '/var/lib/postgresql/9.1/main'
-    $pg_configdir = '/etc/postgresql/9.1/main'    
-    $pg_contribdir = '/usr/share/postgresql/9.1/contrib'
-
-    $repmgr_config_file = '/etc/repmgr/repmgr.conf'
-    $repmgrd_logdir = '/var/log/repmgr'
-    $repmgr_opts = join(['--force', '--verbose'], ' ')
-
-    Account['postgres'] -> File['repmgr_config_file'] -> File['pg_ssh_config']
-
-    # NOTE : This is a quick way to check if id_rsa private key exists.
-    # This exec may be improved (puppetized using fail() function) to be more verbose 
-    # and assert that puppet fails when condition is not satisfied (id_rsa not found)
-    exec {'check_ssh_priv_key':
-        path      => ['/usr/bin', '/bin'],
-        command   => 'echo "Postgres private key doesn\'t exist. Make sure /var/lib/postgresql/.ssh/id_rsa exist and then perform puppet again"',
-        onlyif    => '[ ! -f /var/lib/postgresql/.ssh/id_rsa ]',
-        logoutput => true,
-        returns   => 1,
-        before    => Account['postgres'],
-    }
-
-    # Assert postgres user exists
-    account {'postgres':
-        ensure => present,
-        home_dir   => '/var/lib/postgresql',
-        ssh_keys         => {
-            'repmgr_key' => {
-                type     => 'ssh-rsa',
-                key      => $repmgr_ssh_key,
-             }
-        }
-    }
-
-    file {'pg_ssh_config':
-        path  => '/var/lib/postgresql/.ssh/config',
-        owner => postgres,
-        group => postgres,
-        mode  => 644,
-        content => 'StrictHostKeyChecking no',
+    if $force_action {
+        $repmgr_options = "${repmgr_options} --force"
     }
 
     # Create repmgr config dir
@@ -81,18 +43,17 @@ class repmgr::config (
         group     => postgres,
         mode      => '0644',
         content   => template('repmgr/repmgr.conf.erb'),
-        path      => $repmgr_config_file,
+        path      => $repmgr::params::repmgr_conf_file,
     }
 
     # Assert that repmgrd log directory exists
     file {'repmgrd_log_dir':
         ensure => directory,
-        path   => $repmgrd_logdir,
+        path   => $repmgr::params::repmgrd_log_dir,
         owner  => postgres,
         group  => postgres,
         mode   => 644,
     }
-
 
     if $node_role == 'master' {
         
@@ -100,63 +61,61 @@ class repmgr::config (
         
         # Create the user and database to manage replication
         exec {'create_repmgr_db_user':
-            path     => ['/bin/','/usr/bin'],
             command  => 'createuser -s repmgr',
             user     => 'postgres',
             onlyif   => '[ `psql template1 -c "\du" | grep -c repmgr` -eq "0" ]',
         }
 
         exec{'create_repmgr_db':
-            path     => ['/bin', '/usr/bin'],
-            command  => "createdb -O repmgr repmgr && psql -f $pg_contribdir/repmgr_funcs.sql repmgr",
+            command  => "createdb -O repmgr repmgr && psql -f $repmgr::params::pg_contrib_dir/repmgr_funcs.sql repmgr",
             user     => 'postgres',
             onlyif   => '[ `psql -l | grep -c repmgr` -eq "0" ]',
         } 
         # Register master node if it's not and only if repmgr database has been created
         exec {'master_register':
-            path    => ['/bin', '/usr/bin'],
-            command => "repmgr -f $repmgr_config_file master register",
+            command => "repmgr -f $repmgr::params::repmgr_conf_file master register",
             user    => 'postgres',
             onlyif  => [
                 "psql -l | grep repmgr",
-                "[ `repmgr -f $repmgr_config_file cluster show | grep -c master` -eq 0 ]"
+                "[ `repmgr -f $repmgr::params::repmgr_conf_file cluster show | grep -c master` -eq 0 ]"
             ],
         }
     }
     elsif $node_role in ['slave', 'witness'] {
 
-        Exec['stop_repmgrd'] -> Exec['stop_standby'] -> Exec['clone_master'] ~> Service['postgresql'] -> Exec['standby_register'] -> Exec['start_repmgrd']
+        Exec['stop_repmgrd'] -> Exec['stop_standby'] -> Exec['clean_pg_data'] -> Exec['clone_master'] ~> Service['postgresql'] -> Exec['standby_register'] -> Exec['start_repmgrd']
 
         # Stop repmgrd if running
         exec {'stop_repmgrd':
-            path    => ['/bin','/usr/bin'],
             command => 'killall repmgrd',
             onlyif   => "[ `pidof repmgrd` ]",
         }
         # Stop standby node if running
         exec {'stop_standby':
-            path => ['/bin', '/usr/bin', '/usr/lib/postgresql/9.1/bin'],
-            command => "sudo -u postgres $pg_ctl -D $pg_data stop -m fast -l $pg_logfile",
+            command => "sudo -u postgres $repmgr::params::pg_ctl -D $repmgr::params::pg_data stop -m fast -l $repmgr::params::pg_logfile",
             onlyif  => "[ `killall -0 postgres 2>&1 | grep -c postgres` -eq 0 ]",
         }
+
+        # Clean postgres data dir before the fist clone (this is done juste once)
+        exec {'clean_pg_data':
+            command => "rm -r $repmgr::params::pg_data",
+            onlyif  => "[ ! -f $repmgr::params::pg_data/recovery.conf ]",
+        }
+        
         # Clone the master and start standby
         exec {'clone_master':
-            path    => ['/bin', '/usr/bin'],
-            command => "sudo -u postgres repmgr -f $repmgr_config_file -D $pg_data -d repmgr -U repmgr -R postgres standby clone $master_node $repmgr_opts",
-            onlyif  => "rm -r $pg_data",
-            #onlyif  => "sudo -u postgres repmgr -f $repmgr_config_file -D $pg_data -d repmgr -U repmgr -R postgres standby clone $master_node $repmgr_opts; [ $? -ne 0 ] && killall postgres && rm -r $pg_data || false",
+            command => "sudo -u postgres repmgr -f $repmgr::params::repmgr_conf_file -D $repmgr::params::pg_data -d repmgr -U repmgr -R postgres standby clone $master_node $repmgr_options",
         }
+
         # Register the standby server if it's not
         exec {'standby_register':
-            path      => ['/bin', '/usr/bin'],
-            command   => "sudo -u postgres repmgr -f $repmgr_config_file standby register",
-            onlyif    => "[ `repmgr -f $repmgr_config_file cluster show | grep -c 'standby | host=$node_name'` -eq 0 ]",
+            command   => "sudo -u postgres repmgr -f $repmgr::params::repmgr_conf_file standby register",
+            onlyif    => "[ `repmgr -f $repmgr::params::repmgr_conf_file cluster show | grep -c 'standby | host=$node_name'` -eq 0 ]",
         }
         # Start repmgrd daemon
         # NOTE running repmgrd via an init script will be better
         exec {'start_repmgrd':
-            path    => ['/bin', '/usr/bin'],
-            command => "sudo -u postgres repmgrd -f $repmgr_config_file -d --monitoring-history > ${repmgrd_logdir}/repmgrd.log 2>&1",
+            command => "sudo -u postgres repmgrd -f $repmgr::params::repmgr_conf_file -d --monitoring-history > ${repmgr::params::repmgrd_log_dir}/repmgrd.log 2>&1",
             onlyif   => "[ `killall -0 repmgrd 2>&1 | grep -c repmgrd` -ne 0 ]",
         }
     }

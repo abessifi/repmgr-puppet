@@ -1,21 +1,18 @@
 class repmgr::postgresql inherits repmgr::params {
 
-    $pg_ctl = '/usr/lib/postgresql/9.1/bin/pg_ctl'
-    $pg_logfile = '/var/log/postgresql/postgresql-9.1-main.log'
-    $pg_data = '/var/lib/postgresql/9.1/main'
-    $pg_configdir = '/etc/postgresql/9.1/main'
-
-    Package['postgresql'] -> Account['postgres'] -> Service['postgresql']
+    Package['postgresql'] -> Service['postgresql']
     
     # Install Postgresql packages
     package {'postgresql':
         name   => $repmgr::params::postgresql,
         ensure => present,
+        before => Package['postgresql_contrib'],
     }
 
     package {'postgresql_contrib':
         name   => $repmgr::params::postgresql_contrib,
         ensure => present,
+        before => Package['postgresql_server_dev'],
     }
 
     package {'postgresql_server_dev':
@@ -24,7 +21,7 @@ class repmgr::postgresql inherits repmgr::params {
     }
 
     file {'postgresql-master-config':
-        path   => "$pg_configdir/postgresql.conf.master",
+        path   => "${repmgr::params::pg_config_file}.master",
         source => 'puppet:///modules/repmgr/postgresql.conf.master',
         ensure => present,
         owner  => postgres,
@@ -33,7 +30,7 @@ class repmgr::postgresql inherits repmgr::params {
     }
 
     file {'postgresql-slave-config':
-        path   => "$pg_configdir/postgresql.conf.slave",
+        path   => "${repmgr::params::pg_config_file}.slave",
         source => 'puppet:///modules/repmgr/postgresql.conf.slave',
         ensure => present,
         owner  => postgres,
@@ -42,7 +39,7 @@ class repmgr::postgresql inherits repmgr::params {
     }
 
     file {'postgresql-hba-config':
-        path    => "$pg_configdir/pg_hba.conf",
+        path    => "$repmgr::params::pg_config_dir/pg_hba.conf",
         ensure  => present,
         owner   => postgres,
         group   => postgres,
@@ -52,17 +49,17 @@ class repmgr::postgresql inherits repmgr::params {
     }
     service {'postgresql':
         ensure  => running,
-        status  => "sudo -u postgres $pg_ctl -D $pg_data status",
+        status  => "sudo -u postgres $repmgr::params::pg_ctl -D $repmgr::params::pg_data status",
         # Wait 10s to get postgresql reachable
-        start   => "sudo -u postgres $pg_ctl -D $pg_data start -o '-c config_file=$pg_configdir/postgresql.conf' -l $pg_logfile && sleep 10",
+        start   => "sudo -u postgres $repmgr::params::pg_ctl -D $repmgr::params::pg_data start -o '-c config_file=$repmgr::params::pg_config_file' -l $repmgr::params::pg_logfile && sleep 10",
         # The real Debian way is to use pg_ctlcluster like so :
-        # sudo -u postgres pg_ctlcluster 9.3 main start 
-        stop    => "sudo -u postgres $pg_ctl -D $pg_data stop -m fast -l $pg_logfile",
-        restart => "sudo -u postgres $pg_ctl -D $pg_data restart -m fast -l $pg_logfile && sleep 10",
+        # sudo -u postgres pg_ctlcluster 9.1 main start 
+        stop    => "sudo -u postgres $repmgr::params::pg_ctl -D $repmgr::params::pg_data stop -m fast -l $repmgr::params::pg_logfile",
+        restart => "sudo -u postgres $repmgr::params::pg_ctl -D $repmgr::params::pg_data restart -m fast -l $repmgr::params::pg_logfile && sleep 10",
     }
 
     service {'postgresql-reload':
-        status  => "sudo -u postgres $pg_ctl -D $pg_data status",
-        restart => "sudo -u postgres $pg_ctl -D $pg_data reload",
+        status  => "sudo -u postgres $repmgr::params::pg_ctl -D $repmgr::params::pg_data status",
+        restart => "sudo -u postgres $repmgr::params::pg_ctl -D $repmgr::params::pg_data reload",
     }
 }
