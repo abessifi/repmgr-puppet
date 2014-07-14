@@ -7,7 +7,6 @@ class repmgr::config (
     $node_id = undef,
     $node_name = undef,
     $conninfo_host = undef,
-    $repmgr_ssh_key = undef,
     $master_node = undef,
     $force_action = false,
 ){
@@ -27,13 +26,15 @@ class repmgr::config (
         $repmgr_options = "${repmgr_options} --force"
     }
 
+    File['repmgr_config_dir'] -> File['repmgr_config_file']
+
     # Create repmgr config dir
-    file {'/etc/repmgr':
+    file {'repmgr_config_dir':
+        path   => '/etc/repmgr',
         ensure => 'directory',
         owner  => root,
         group  => root,
         mode   => '0755',
-        before => File['repmgr_config_file'],
     }
 
     # Generate repmgr config file

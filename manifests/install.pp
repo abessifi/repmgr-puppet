@@ -2,19 +2,20 @@ class repmgr::install (
 
     $node_role = undef,
     $pg_cluster_subnet = undef,
+    $repmgr_ssh_key = undef,
 ){
   
     # repmgr depends on some postgresql packages
     include repmgr::postgresql
 
-    Account['postgres'] -> Exec['check_ssh_priv_key'] -> File['pg_ssh_priv_key']
+    Account['postgres'] -> File['pg_home_dir'] -> Exec['check_ssh_priv_key'] -> File['pg_ssh_priv_key']
     
     # Assert postgres user exists
     account {'postgres':
-        ensure => present,
-        home_dir   => "$repmgr::params::pg_home_dir",
-        ssh_keys         => {
-                'repmgr_key' => {
+        ensure    => present,
+        home_dir  => "$repmgr::params::pg_home_dir",
+        ssh_keys  => {
+                'postgres_key' => {
                     type     => 'ssh-rsa',
                     key      => $repmgr_ssh_key,
                 }
@@ -29,6 +30,14 @@ class repmgr::install (
         onlyif    => "[ ! -f $repmgr::params::pg_home_dir/.ssh/id_rsa ]",
         logoutput => true,
         returns   => 1,
+    }
+
+    file {'pg_home_dir':
+        ensure => directory,
+        path   => '/var/lib/postgres',
+        owner  => postgres,
+        group  => postgres,
+        mode   => 755,
     }
 
     file {'pg_ssh_priv_key':
@@ -46,7 +55,6 @@ class repmgr::install (
         mode  => 644,
         content => 'StrictHostKeyChecking no',
     }
-
 
     # Apply the correct postgresql config file (master|slave)
     exec {'set_postgres_config':

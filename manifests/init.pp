@@ -121,7 +121,7 @@ define repmgr(
         fail("Cluster subnet IP address is not correct !")
     }
     if $ssh_key == undef {
-        fail("repmgr public key is required to setup access between nodes !")
+        fail("Postgres public key is required to setup access between nodes !")
     }
 
     # Set a default $PATH for all execs
@@ -148,6 +148,7 @@ define repmgr(
     class { 'repmgr::install':
         node_role         => $role,
         pg_cluster_subnet => $subnet,
+        repmgr_ssh_key    => $ssh_key,
     } -> 
     class { 'repmgr::config':
         node_role      => $role,
@@ -155,7 +156,6 @@ define repmgr(
         node_id        => $id,
         node_name      => $name,
         conninfo_host  => $name,
-        repmgr_ssh_key => $ssh_key,
         master_node    => $master,
         force_action   => $force,
     }
