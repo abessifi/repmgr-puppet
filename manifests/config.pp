@@ -68,7 +68,7 @@ class repmgr::config (
         }
 
         exec{'create_repmgr_db':
-            command  => "createdb -O repmgr repmgr && psql -f $repmgr::params::pg_contrib_dir/repmgr_funcs.sql repmgr",
+            command  => "createdb -O repmgr repmgr && psql -f $repmgr::params::pg_contrib_dir/repmgr_funcs.sql repmgr && sleep 5",
             user     => 'postgres',
             onlyif   => '[ `psql -l | grep -c repmgr` -eq "0" ]',
         } 

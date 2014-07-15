@@ -1,7 +1,6 @@
 class repmgr::postgresql inherits repmgr::params {
 
     Package['postgresql'] -> Service['postgresql']
-    
     # Install Postgresql packages
     package {'postgresql':
         name   => $repmgr::params::postgresql,
@@ -20,33 +19,6 @@ class repmgr::postgresql inherits repmgr::params {
         ensure => present,
     }
 
-    file {'postgresql-master-config':
-        path   => "${repmgr::params::pg_config_file}.master",
-        source => 'puppet:///modules/repmgr/postgresql.conf.master',
-        ensure => present,
-        owner  => postgres,
-        group  => postgres,
-        mode   => 0644,
-    }
-
-    file {'postgresql-slave-config':
-        path   => "${repmgr::params::pg_config_file}.slave",
-        source => 'puppet:///modules/repmgr/postgresql.conf.slave',
-        ensure => present,
-        owner  => postgres,
-        group  => postgres,
-        mode   => 0644,
-    }
-
-    file {'postgresql-hba-config':
-        path    => "$repmgr::params::pg_config_dir/pg_hba.conf",
-        ensure  => present,
-        owner   => postgres,
-        group   => postgres,
-        mode    => '0640',
-        content => template('repmgr/pg_hba.conf.erb'),
-        notify  => Service['postgresql-reload'],
-    }
     service {'postgresql':
         ensure  => running,
         status  => "sudo -u postgres $repmgr::params::pg_ctl -D $repmgr::params::pg_data status",

@@ -3,12 +3,13 @@ class repmgr::install (
     $node_role = undef,
     $pg_cluster_subnet = undef,
     $repmgr_ssh_key = undef,
-){
+
+) {
   
     # repmgr depends on some postgresql packages
     include repmgr::postgresql
 
-    Account['postgres'] -> File['pg_home_dir'] -> Exec['check_ssh_priv_key'] -> File['pg_ssh_priv_key']
+    Account['postgres'] -> Exec['check_ssh_priv_key'] -> File['pg_ssh_priv_key']
     
     # Assert postgres user exists
     account {'postgres':
@@ -32,14 +33,6 @@ class repmgr::install (
         returns   => 1,
     }
 
-    file {'pg_home_dir':
-        ensure => directory,
-        path   => '/var/lib/postgres',
-        owner  => postgres,
-        group  => postgres,
-        mode   => 755,
-    }
-
     file {'pg_ssh_priv_key':
         path   => "$repmgr::params::pg_home_dir/.ssh/id_rsa",
         ensure => present,
@@ -54,6 +47,36 @@ class repmgr::install (
         group => postgres,
         mode  => 644,
         content => 'StrictHostKeyChecking no',
+    }
+
+    File['postgresql_master_config'] -> File['postgresql_slave_config'] -> File['postgresql_hba_config'] -> Exec['set_postgres_config']
+
+    file {'postgresql_master_config':
+        path   => "${repmgr::params::pg_config_file}.master",
+        source => 'puppet:///modules/repmgr/postgresql.conf.master',
+        ensure => present,
+        owner  => postgres,
+        group  => postgres,
+        mode   => 0644,
+    }
+
+    file {'postgresql_slave_config':
+        path   => "${repmgr::params::pg_config_file}.slave",
+        source => 'puppet:///modules/repmgr/postgresql.conf.slave',
+        ensure => present,
+        owner  => postgres,
+        group  => postgres,
+        mode   => 0644,
+    }
+
+    file {'postgresql_hba_config':
+        path    => "$repmgr::params::pg_config_dir/pg_hba.conf",
+        ensure  => present,
+        owner   => postgres,
+        group   => postgres,
+        mode    => '0640',
+        content => template('repmgr/pg_hba.conf.erb'),
+        notify  => Service['postgresql-reload'],
     }
 
     # Apply the correct postgresql config file (master|slave)
