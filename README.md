@@ -53,7 +53,7 @@ repmgr-puppet is currently using [puppet-account](https://github.com/vaytess/pup
 
 ## Usage
 
-If you are note using a DNS server, assert that in each host, you have a domain name resolution entry in /etc/hosts for each node. E.g :
+If you are not using a DNS server, assert that in each host, you have a domain name resolution entry in /etc/hosts for each node. E.g :
 
     192.168.1.10   node1.local node1
     192.168.1.20   node2.local node2
