@@ -72,12 +72,10 @@ As root, create postgres home and ssh keys directories :
 
 If a PostgreSQL server in node1 exists already :
 
-  * Backup your databases :
-
+    Backup your databases
     (node1)$ pg_dump -U {username} -c {db_name} -f /somewhere/{db_name}_backup.sql
-
-  * Make sure that the server is down :
-
+    
+    Make sure that the server is down
     (node1)$ /etc/init.d/postgresql stop
 
 Create postgres ssh private key into "/var/lib/postgresql/.ssh/id_rsa" without passphrase (empty passphrase):
