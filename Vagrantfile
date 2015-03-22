@@ -5,6 +5,8 @@ PG_TOTAL_SLAVES = 2
 DOMAIN = "cllfst.local"
 FIRST_NODE_IP = "192.168.10.10"
 PUPPET_MASTER_IP = "192.168.10.100"
+JENKINS_IP = "192.168.10.101"
+
 ip_last_byte = FIRST_NODE_IP.split(".")[-1].to_i
 pg_slaves = []
 
@@ -27,17 +29,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 	config.hostmanager.enabled = true
 	config.hostmanager.manage_host = true
 	config.hostmanager.include_offline = true
-	# Install Puppet package in all nodes
-	config.vm.provision "shell", path: "./scripts/install_puppet.sh"
 	# PostgreSQL master VM
 	config.vm.define "pg-master" do |cfg|
 		cfg.vm.hostname = "pg-master.#{DOMAIN}"
-		cfg.vm.network "private_network", ip: "#{FIRST_NODE_IP}"
+		cfg.vm.network "private_network", ip: FIRST_NODE_IP
 		cfg.hostmanager.aliases = "pg-master"
 		cfg.vm.provider "virtualbox" do |v|
 			v.name = "pg-master"
 			v.memory = 768
 		end
+		cfg.vm.provision "shell", path: "./scripts/install_puppet.sh"
 	end
 	# PostgreSQL slaves VMs definition
 	pg_slaves.each do |node|
@@ -49,12 +50,25 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 				v.name = node[:hostname]
 				v.memory = 512
 			end
+			cfg.vm.provision "shell", path: "./scripts/install_puppet.sh"
 		end
 	end
 	# Puppet master (development VM)
 	config.vm.define "puppet-master" do |cfg|
 		cfg.vm.hostname = "puppet-master.#{DOMAIN}"
-		cfg.vm.network "private_network", ip: "#{PUPPET_MASTER_IP}"
+		cfg.vm.network "private_network", ip: PUPPET_MASTER_IP
 		cfg.hostmanager.aliases = "puppet-master"
+		cfg.vm.provision "shell", path: "./scripts/install_puppet.sh"
 	end
+	# Provision a Jenkins VM to integrate repmgr-puppet module source code.
+	config.vm.define "jenkins" do |cfg|
+		cfg.vm.hostname = "jenkins.#{DOMAIN}"
+		cfg.vm.network "private_network", ip: JENKINS_IP
+		# Access Jenkins UI from http://<JENKINS_IP>:8080 or http://localhost:8082
+		cfg.vm.network "forwarded_port", guest: 8080, host: 8082
+		cfg.hostmanager.aliases = "jenkins"
+		cfg.vm.provision "shell", path: "./scripts/install_jenkins.sh"
+	end
+	
+	
 end
