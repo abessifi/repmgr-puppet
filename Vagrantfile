@@ -13,6 +13,17 @@ pg_slaves = []
 	pg_slaves << {:hostname => "pg-slave-#{id}", :ip => "192.168.10.#{ip_last_byte}"}
 }
 
+$install_puppet = <<SCRIPT
+[ "$(puppet --version)" = "3.7.4" ] && echo "Puppet '3.7.4' is already installed \!" && exit 0
+wget --output-document=/tmp/puppetlabs-release-wheezy.deb https://apt.puppetlabs.com/puppetlabs-release-wheezy.deb
+[ -f /tmp/puppetlabs-release-wheezy.deb ] || exit 1
+sudo dpkg -i /tmp/puppetlabs-release-wheezy.deb
+sudo apt-get update
+sudo apt-get install -y puppet=3.7.4-1puppetlabs1
+echo "Puppet $(puppet --version) is now installed."
+rm /tmp/puppetlabs-release-wheezy.deb
+SCRIPT
+
 VAGRANTFILE_API_VERSION = "2"
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
@@ -27,6 +38,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 	config.hostmanager.enabled = true
 	config.hostmanager.manage_host = true
 	config.hostmanager.include_offline = true
+	# Install Puppet package in all nodes
+	config.vm.provision "shell", inline: $install_puppet
 	# PostgreSQL master VM
 	config.vm.define "pg-master" do |cfg|
 		cfg.vm.hostname = "pg-master.#{DOMAIN}"
