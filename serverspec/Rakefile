@@ -8,6 +8,7 @@ properties = YAML.load_file('properties.yml')
 
 desc "Run serverspec to all hosts"
 task :spec => 'serverspec:all'
+task :default => :spec 
 
 namespace :serverspec do
   task :all => properties.keys.map { |fqdn| 'serverspec:' + fqdn.split('.')[0] }

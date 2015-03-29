@@ -1,5 +1,4 @@
 TODO
 *.swp
 .vagrant
-Rakefile.orig
 serverspec/spec/pg_master_spec.rb
