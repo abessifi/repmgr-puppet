@@ -38,7 +38,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 			v.name = "pg-master"
 			v.memory = 768
 		end
-		cfg.vm.provision "shell", path: "./scripts/install_puppet.sh"
+		cfg.vm.provision "shell", :path => "./scripts/install_packages.sh", :args => "puppet"
 	end
 	# PostgreSQL slaves VMs definition
 	pg_slaves.each do |node|
@@ -50,7 +50,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 				v.name = node[:hostname]
 				v.memory = 512
 			end
-			cfg.vm.provision "shell", path: "./scripts/install_puppet.sh"
+			cfg.vm.provision "shell", :path => "./scripts/install_packages.sh", :args => "puppet"
 		end
 	end
 	# Puppet master (development VM)
@@ -58,7 +58,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 		cfg.vm.hostname = "puppet-master.#{DOMAIN}"
 		cfg.vm.network "private_network", ip: PUPPET_MASTER_IP
 		cfg.hostmanager.aliases = "puppet-master"
-		cfg.vm.provision "shell", path: "./scripts/install_puppet.sh"
+		cfg.vm.provision "shell", :path => "./scripts/install_packages.sh", :args => "puppetmaster"
 	end
 	# Provision a Jenkins VM to integrate repmgr-puppet module source code.
 	config.vm.define "jenkins" do |cfg|
@@ -67,8 +67,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 		# Access Jenkins UI from http://<JENKINS_IP>:8080 or http://localhost:8082
 		cfg.vm.network "forwarded_port", guest: 8080, host: 8082
 		cfg.hostmanager.aliases = "jenkins"
-		cfg.vm.provision "shell", path: "./scripts/install_jenkins.sh"
-	end
-	
-	
+		cfg.vm.provision "shell", :path => "./scripts/install_packages.sh", :args => "jenkins"
+	end	
 end
