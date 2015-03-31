@@ -5,7 +5,7 @@ require 'rspec/core/rake_task'
 require 'yaml'
 
 properties = YAML.load_file('properties.yml')
-
+# TODO : check why serverspec:all doesn't run all test, otherwise one single test is ran.
 desc "Run serverspec to all hosts"
 task :spec => 'serverspec:all'
 task :default => :spec 
