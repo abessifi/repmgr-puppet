@@ -58,7 +58,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 		cfg.vm.hostname = "puppet-master.#{DOMAIN}"
 		cfg.vm.network "private_network", ip: PUPPET_MASTER_IP
 		cfg.hostmanager.aliases = "puppet-master"
+		cfg.vm.provider "virtualbox" do |v| 
+			v.name = "puppet-master"
+		end
 		cfg.vm.provision "shell", :path => "./scripts/install_packages.sh", :args => "puppetmaster"
+		cfg.vm.synced_folder "./puppet-repmgr", "/etc/puppet/environments/development/modules/repmgr"
 	end
 	# Provision a Jenkins VM to integrate repmgr-puppet module source code.
 	config.vm.define "jenkins" do |cfg|
@@ -67,6 +71,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 		# Access Jenkins UI from http://<JENKINS_IP>:8080 or http://localhost:8082
 		cfg.vm.network "forwarded_port", guest: 8080, host: 8082
 		cfg.hostmanager.aliases = "jenkins"
+		cfg.vm.provider "virtualbox" do |v| 
+			v.name = "jenkins"
+		end
 		cfg.vm.provision "shell", :path => "./scripts/install_packages.sh", :args => "jenkins"
 	end	
 end
