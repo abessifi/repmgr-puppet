@@ -1,0 +1,33 @@
+{
+  "name": "repmgr-puppet",
+  "version": "0.1.0",
+  "author": "Ahmed Bessifi",
+  "summary": "A puppet module for repmgr to handle PostgreSQL streaming replication and orchestration for failing back and forth.",
+  "license": "Apache 2.0",
+  "source": "https://github.com/abessifi/repmgr-puppet",
+  "project_page": "https://github.com/abessifi/repmgr-puppet",
+  "issues_url": "https://github.com/abessifi/repmgr-puppet/issues",
+  "dependencies": [
+    {
+      "name": "puppetlabs-stdlib",
+      "version_requirement": ">= 1.0.0"
+    }
+  ],
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "Debian",
+      "operatingsystemrelease": [
+        "6",
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "RedHat",
+      "operatingsystemrelease": [
+        "5",
+        "6",
+        "7"
+      ]
+    }
+  ]
+}

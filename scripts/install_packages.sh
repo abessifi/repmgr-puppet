@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 # This is a Bash Script for verifying packages version and installing them.
 # It is just quick way to provision Vagrant VMs.
 
@@ -78,7 +78,7 @@ function check_service(){
 
 function install_utilities(){
 	which bundle > /dev/null || sudo gem install bundler
-	sudo apt-get install -y git
+	sudo apt-get install -y git ruby-dev build-essential
 }
 
 # Check and Install packages

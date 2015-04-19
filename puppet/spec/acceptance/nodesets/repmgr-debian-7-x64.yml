@@ -1,0 +1,12 @@
+HOSTS:
+  pg-master:
+    roles:
+      - pg_master
+    platform: debian-7-amd64
+    box: deb/wheezy-amd64
+    box_url: https://vagrantcloud.com/deb/wheezy-amd64
+    hypervisor: vagrant
+
+CONFIG:
+  log_level: verbose
+  type: foss

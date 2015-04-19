@@ -1,4 +1,5 @@
 TODO
 *.swp
 .vagrant
-serverspec/spec/pg_master_spec.rb
+puppet/READIT.md
+log/

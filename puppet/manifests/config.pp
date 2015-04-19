@@ -1,3 +1,8 @@
+# == Class repmgr::config
+#
+# This class is called from repmgr for service config.
+#
+
 $repmgr_options = '--verbose'
 
 class repmgr::config (

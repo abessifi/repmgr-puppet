@@ -3,16 +3,16 @@
 
 PG_TOTAL_SLAVES = 2
 DOMAIN = "cllfst.local"
-FIRST_NODE_IP = "192.168.10.10"
-PUPPET_MASTER_IP = "192.168.10.100"
-JENKINS_IP = "192.168.10.101"
+FIRST_NODE_IP = "192.168.40.10"
+PUPPET_MASTER_IP = "192.168.40.100"
+JENKINS_IP = "192.168.40.101"
 
 ip_last_byte = FIRST_NODE_IP.split(".")[-1].to_i
 pg_slaves = []
 
 (1..PG_TOTAL_SLAVES).each { |id|
 	ip_last_byte +=1
-	pg_slaves << {:hostname => "pg-slave-#{id}", :ip => "192.168.10.#{ip_last_byte}"}
+	pg_slaves << {:hostname => "pg-slave-#{id}", :ip => "192.168.40.#{ip_last_byte}"}
 }
 
 VAGRANTFILE_API_VERSION = "2"
@@ -62,7 +62,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 			v.name = "puppet-master"
 		end
 		cfg.vm.provision "shell", :path => "./scripts/install_packages.sh", :args => "puppetmaster"
-		#cfg.vm.synced_folder "./puppet-repmgr", "/etc/puppet/environments/development/modules/repmgr"
+		cfg.vm.synced_folder "./puppet", "/etc/puppet/environments/development/modules/repmgr"
 	end
 	# Provision a Jenkins VM to integrate repmgr-puppet module source code.
 	config.vm.define "jenkins" do |cfg|

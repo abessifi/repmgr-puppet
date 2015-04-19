@@ -1,3 +1,9 @@
+# == Class repmgr::params
+#
+# This class is meant to be called from repmgr.
+# It sets variables according to platform.
+#
+
 class repmgr::params{
 
     case $::osfamily {

@@ -1,3 +1,8 @@
+# == Class puppet::install
+#
+# This class is called from repmgr for install.
+#
+
 class repmgr::install (
 
     $node_role = undef,
