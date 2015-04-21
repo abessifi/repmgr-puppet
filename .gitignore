@@ -1,5 +1,7 @@
 TODO
 *.swp
 .vagrant
-puppet/READIT.md
+repmgr/READIT.md
+repmgr/log
+repmgr/junit
 log/
