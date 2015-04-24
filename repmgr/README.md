@@ -51,6 +51,34 @@ This Puppet module works with PostgreSQL version 9.0 and superior.
 
 repmgr-puppet is currently using [puppet-account](https://github.com/vaytess/puppet-account) module to create and manage postgres user.
 
+## Typical test cases
+
+The `run_tests.sh` is a very helpful script to automate tests running. Here are some examples:
+
+To run all tests with default parameters:
+
+	$ sudo ./run_tests.sh --tests
+
+Tu run all tests with a specific environment configuration:
+
+	$ sudo ./run_tests.sh --tests --config=debian-76-x64
+
+To run only acceptance tests with a specific environment configuration:
+
+	$ sudo ./run_tests.sh --acceptance-tests --config=debian-76-x64
+
+To run only unittests:
+
+	$ sudo ./run_tests.sh --unittests
+
+To provision the box, preserve it and run tests:
+
+	$ sudo ./run_tests.sh --tests --no-destroy
+
+To re-use the same box, preserve it and run tests:
+
+	$ sudo ./run_tests.sh --tests --no-destroy --no-destroy
+
 ## Usage
 
 If you are not using a DNS server, assert that in each host, you have a domain name resolution entry in /etc/hosts for each node. E.g :
