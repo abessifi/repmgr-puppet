@@ -121,7 +121,7 @@ function install_ruby(){
 	# Return code :
 	# 0 => rvm and ruby are correctly installed
 	# 1 => rvm not correctly installed
-	echo "[WARN] The required ruby version '${REQUIRED_RUBY_VERSION}' is not installed !"
+	echo "[WARN] The required ruby version '${REQUIRED_RUBY_VERSION}' is not set up !"
 	# Check if rvm is already installed
 	if [ ! -f "/usr/local/rvm/scripts/rvm" ]; then
 		# rvm not installed ! install it.
@@ -134,7 +134,7 @@ function install_ruby(){
 	source /usr/local/rvm/scripts/rvm || return 1
 	# Make sure that REQUIRED_RUBY_VERSION is the default used ruby version.
 	rvm current | egrep -q "^ruby-${REQUIRED_RUBY_VERSION}" || rvm use $REQUIRED_RUBY_VERSION --default
-	echo "[INFO] Ruby '${REQUIRED_RUBY_VERSION}' is now the default installed version."
+	echo "[INFO] Ruby '${REQUIRED_RUBY_VERSION}' is now the default version."
 }
 
 # Install repmgr-puppet module dependencies
