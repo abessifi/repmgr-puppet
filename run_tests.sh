@@ -22,6 +22,9 @@
 # 	-d,--no-destroy
 # 		Preserve test boxes after testing.
 #
+# 	-h, --help
+# 		Show help.
+#
 # 	-p,--no-provision
 # 		Skip provisioning boxes before testing, will then assume that boxes are
 # 		already provisioned and reachable.
@@ -99,10 +102,19 @@ function usage(){
 	To run only acceptance tests with a specific environment configuration:
 		./run_tests.sh --acceptance-tests --config=debian-76-x64
 	"
+}
+# Show error and quit
+function die(){
+	if [ ! -z "$1" ]; then
+		echo "$1"
+	else
+		usage
+	fi
 	exit 1
 }
+
 # quit if not argument is passed
-[ "$#" == 0 ] && usage
+[ "$#" == 0 ] && die "One argument is required at least ! Use --help for help."
 
 function get_system_ruby_version(){
 	# check if ruby is already installed
@@ -196,24 +208,27 @@ function run_unittests(){
 }
 
 # Otherwise, parse options
-OPTS=$(getopt -o acd:ptu --long acceptance-tests,config:,no-destroy,tests,no-provision,unit-tests -n "$0" -- "$@") || usage
+OPTS=$(getopt -o ac:dhptu --long acceptance-tests,config:,no-destroy,help,tests,no-provision,unit-tests -n "$0" -- "$@") || die "Use --help for help."
 eval set -- "$OPTS"
 
 while true ; do
 	case "$1" in
+		-a|--acceptance-tests)
+			RUN_ACCEPTANCE_TESTS='yes'
+			shift
+			;;
 		-c|--config)
 			case "$2" in
                 *) ENVIRONMENT_CONFIG="$2"
 				   shift 2 ;;
 			esac
 			;;
-		-a|--acceptance-tests)
-			RUN_ACCEPTANCE_TESTS='yes'
-			shift
-			;;
 		-d|--no-destroy)
 			BEAKER_DESTROY='no'
 			shift;;
+		-h|--help)
+			usage
+			exit 0 ;;
 		-p|--no-provision)
 			BEAKER_PROVISION='no'
 			shift;;
@@ -226,7 +241,8 @@ while true ; do
 			shift
 			;;
 		--) shift ; break ;;
-		*)	usage ;;
+		*)
+			die "Unknown option '$1' ! Use --help for help."
 	esac
 done
 
