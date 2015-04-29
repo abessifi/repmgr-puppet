@@ -1,0 +1,7 @@
+forge 'forge.puppetlabs.com'
+# Install modules to an absolute path
+moduledir '/etc/puppet/modules/repmgr/modules'
+# Forge Modules
+mod 'puppetlabs/stdlib'
+mod 'puppetlabs/concat'
+mod 'puppetlabs/postgresql'

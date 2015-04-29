@@ -92,72 +92,88 @@
 #
 # == Licence
 #
-# GNU GPLv2 - Copyright (C) 2014 Ahmed Bessifi
+# Apache 2.0 - Copyright (C) 2014 Ahmed Bessifi
 #
 
-define repmgr(
-    $ensure = 'present',
-    $role = undef,
-    $name = $title,
-    $id = undef,
-    $master = undef,
-    $cluster = undef,
-    $subnet = undef,
-    $ssh_key = undef,
-    $force = false, 
-){
+#define repmgr (
+#    $ensure = 'present',
+#    $role = undef,
+#    $name = $title,
+#    $id = undef,
+#    $master = undef,
+#    $cluster = undef,
+#    $subnet = undef,
+#    $ssh_key = undef,
+#    $force = false, 
+#) {
 
     # Some basic tests
-    if $cluster == undef {
-        fail("Cluster name is required !")
-    }
-    if $name == undef {
-        fail("Node name is required !")
-    }
-    if $id == undef {
-        fail("Node id is required !")
-    }
-    if $subnet == undef {
-        fail("Cluster subnet IP address is not correct !")
-    }
-    if $ssh_key == undef {
-        fail("Postgres public key is required to setup access between nodes !")
-    }
+    #    if $cluster == undef {
+    #   fail("Cluster name is required !")
+    #}
+    #if $name == undef {
+    #    fail("Node name is required !")
+    #}
+    #if $id == undef {
+    #    fail("Node id is required !")
+    #}
+    #if $subnet == undef {
+    #    fail("Cluster subnet IP address is not correct !")
+    #}
+    #if $ssh_key == undef {
+    #    fail("Postgres public key is required to setup access between nodes !")
+    #}
 
     # Set a default $PATH for all execs
-    Exec { path => ['/bin', '/usr/bin', '/usr/lib/postgresql/9.1/bin'] }
+    #Exec { path => ['/bin', '/usr/bin', '/usr/lib/postgresql/9.1/bin'] }
 
     # Setting up repmgr regarding node's role
-    case $role {
+    #case $role {
 
-        'master' : {
+    #'master' : {
             # Do something special if master
-        }
+    #   }
 
-        'slave' : {
-            if  $master == undef {
-                fail("Master node name required !")
-            }
-        }
-        'witness' : {
+    #    'slave' : {
+    #        if  $master == undef {
+    #            fail("Master node name required !")
+    #        }
+    #    }
+    #    'witness' : {
             # Do something special if witness
-        }
-        default : { fail("Invalid value given for role : $role. Must be one of master|slave|witness")  }
-    }
+    #    }
+    #    default : { fail("Invalid value given for role : $role. Must be one of master|slave|witness")  }
+    #}
 
-    class { 'repmgr::install':
-        node_role         => $role,
-        pg_cluster_subnet => $subnet,
-        repmgr_ssh_key    => $ssh_key,
-    } -> 
-    class { 'repmgr::config':
-        node_role      => $role,
-        cluster_name   => $cluster,
-        node_id        => $id,
-        node_name      => $name,
-        conninfo_host  => $name,
-        master_node    => $master,
-        force_action   => $force,
-    }
+    #class { 'repmgr::install':
+    #    node_role         => $role,
+    #    pg_cluster_subnet => $subnet,
+    #    repmgr_ssh_key    => $ssh_key,
+    #} -> 
+    #class { 'repmgr::config':
+    #    node_role      => $role,
+    #    cluster_name   => $cluster,
+    #    node_id        => $id,
+    #    node_name      => $name,
+    #    conninfo_host  => $name,
+    #   master_node    => $master,
+    #    force_action   => $force,
+    #}
+
+#}
+
+class repmgr (
+  $package_ensure         = $repmgr::params::package_ensure,
+  $service_ensure         = $repmgr::params::service_ensure,
+  $pg_version             = $repmgr::params::pg_version,
+  $pg_manage_package_repo = $repmgr::params::pg_manage_package_repo,
+) inherits ::repmgr::params {
+
+  # Validate params here
+  
+  class { '::repmgr::install': }
+  #-> class { '::repmgr::config': }
+  #~> class { '::repmgr::service': }
 
 }
+

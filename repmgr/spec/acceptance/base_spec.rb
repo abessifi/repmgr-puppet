@@ -1,7 +1,6 @@
 require 'spec_helper_acceptance'
 
 describe 'puppet agent' do
-
   describe package('puppet') do
     it { should be_installed }
   end
@@ -10,11 +9,9 @@ describe 'puppet agent' do
     it { should be_enabled }
     it { should_not be_running }
   end
-
 end
 
 describe 'ntp server' do
-  
   it 'should run successfully' do
 	pp = "class { 'ntp': }"
 	# Run it twice and test for idempotency.
