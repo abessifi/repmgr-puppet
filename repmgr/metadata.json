@@ -9,8 +9,17 @@
   "issues_url": "https://github.com/abessifi/repmgr-puppet/issues",
   "dependencies": [
     {
-      "name": "puppetlabs-stdlib",
-      "version_requirement": ">= 1.0.0"
+      "name": "puppetlabs/stdlib",
+      "version_requirement": ">= 4.6.0"
+    },{
+      "name": "puppetlabs/concat",
+      "version_requirement": ">= 1.2.2"
+    },{
+      "name": "puppetlabs/apt",
+      "version_requirement": ">= 1.8.0"
+    },{
+      "name": "puppetlabs/postgresql",
+      "version_requirement": ">= 4.3.0"
     }
   ],
   "operatingsystem_support": [
