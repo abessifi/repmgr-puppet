@@ -66,6 +66,7 @@ RUN_ACCEPTANCE_TESTS='no'
 RUN_UNIT_TESTS='no'
 BEAKER_DESTROY='yes'
 BEAKER_PROVISION='yes'
+CHECK_SYNTAX_LINT='no'
 
 function usage(){
 	echo "Usage: $0 [OPTIONS]
@@ -91,7 +92,10 @@ function usage(){
 
 	-t, --tests
  		Run all tests.
-	
+
+	-s, --check-syntax
+		Run syntax and lint checks.
+
 	-u, --unit-tests
 		Run unittests. This runs Rspec againt all spec/classes/*_spec.rb files.
 
@@ -207,8 +211,15 @@ function run_unittests(){
 	#bundle exec rake test
 }
 
+function check_syntax_lint(){
+	echo "[INFO] Running syntax check and linting.."
+	cd repmgr/
+	bundle exec rake validate
+    cd ..
+}
+
 # Otherwise, parse options
-OPTS=$(getopt -o ac:dhptu --long acceptance-tests,config:,no-destroy,help,tests,no-provision,unit-tests -n "$0" -- "$@") || die "Use --help for help."
+OPTS=$(getopt -o ac:dhpstu --long acceptance-tests,config:,no-destroy,help,tests,check-syntax,no-provision,unit-tests -n "$0" -- "$@") || die "Use --help for help."
 eval set -- "$OPTS"
 
 while true ; do
@@ -232,12 +243,15 @@ while true ; do
 		-p|--no-provision)
 			BEAKER_PROVISION='no'
 			shift;;
-		-u|--unit-tests)
-			RUN_UNIT_TESTS='yes'
-			shift
-			;;
+		-s|--check-syntax)
+			CHECK_SYNTAX_LINT='yes'
+			shift;;
 		-t|--tests)
 			RUN_ALL_TESTS='yes'
+			shift
+			;;
+		-u|--unit-tests)
+			RUN_UNIT_TESTS='yes'
 			shift
 			;;
 		--) shift ; break ;;
@@ -252,10 +266,11 @@ install_requirements
 if [ "$RUN_ALL_TESTS" == 'yes' ]; then
 	run_acceptance_tests
 	run_unittests
+	check_syntax_lint
 	exit 0
 fi
 # Run tests according to specified flags
 [ "$RUN_ACCEPTANCE_TESTS" == 'yes' ] && run_acceptance_tests || true
 [ "$RUN_UNIT_TESTS" == 'yes' ] && run_unittests || true
-
+[ "$CHECK_SYNTAX_LINT" == 'yes' ] && check_syntax_lint || true
 exit 0

@@ -51,11 +51,11 @@ task :puppetfile do
   sh "r10k puppetfile check"
 end
 
-desc "Run syntax, lint, and spec tests."
-task :test => [
+desc "Run syntax and lint tests."
+task :validate => [
   :syntax,
   :lint,
-  :spec,
   :metadata,
   :puppetfile,
 ]
+
