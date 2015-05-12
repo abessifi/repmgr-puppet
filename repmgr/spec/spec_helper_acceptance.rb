@@ -7,6 +7,28 @@ SUPPORTED_DEBIAN_DIST = [ 'Debian', 'Ubuntu' ]
 MODULEPATH = '/etc/puppet/modules:/etc/puppet/modules/repmgr/modules'
 PUPPETFILE_PATH = '/etc/puppet/modules/repmgr/Puppetfile'
 
+def debian_pg_version_helper
+  # On Debian OSes, Puppet didn't install the 'postgresql' package. Instead it 
+  # searches for a postgresql-{version} package and tries to install it.
+  # Here we declare the default available PostgreSQL version on the main APT repo
+  # of some releases.
+  if fact('operatingsystem') == 'Debian'
+    case fact('lsbdistcodename')
+      when 'jessie'
+        pg_version = '9.4'
+      when 'wheezy'
+        pg_version = '9.1'
+    end
+  end
+  if fact('operatingsystem') == 'Ubuntu'
+    case fact('lsbdistcodename')
+      when 'trusty'
+        pg_version = '9.3'
+    end
+  end
+  pg_version
+end
+
 unless ENV['BEAKER_provision'] == 'no'
   hosts.each do |host|
     # Install Puppet

@@ -4,4 +4,5 @@ moduledir '/etc/puppet/modules/repmgr/modules'
 # Forge Modules
 mod 'puppetlabs/stdlib'
 mod 'puppetlabs/concat'
+mod 'puppetlabs/apt', '1.8.0'
 mod 'puppetlabs/postgresql'

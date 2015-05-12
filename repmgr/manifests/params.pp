@@ -7,7 +7,7 @@
 class repmgr::params{
 
   $pg_manage_package_repo = false
-  $pg_version = '9.1'
+  $pg_version = undef
   $package_ensure = 'present'
   $service_ensure = 'running'
 
@@ -33,7 +33,7 @@ class repmgr::params{
             #$pg_contrib_dir = '/usr/share/postgresql/9.1/contrib'
         }
         default: {
-            fail("Unsupported Debian distribution")
+            fail("Unsupported Debian distribution.")
         }
       }
     }

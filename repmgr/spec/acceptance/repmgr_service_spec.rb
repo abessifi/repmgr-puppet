@@ -11,16 +11,10 @@ describe 'repmgr::service class:', :if => SUPPORTED_PLATFORMS.include?(fact('osf
       pp = "class { 'repmgr': }"
       apply_manifest(pp, :modulepath => MODULEPATH, :catch_failures => true)
 		end
-
     describe service(pg_service_name) do
       it { should be_enabled }
       it { should be_running }
     end
-
-    describe port('5432') do
-      it { should be_listening }
-    end
-
     #hosts.each do |host|
       # test for master/slave specifications
     #end
