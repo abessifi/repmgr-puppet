@@ -47,10 +47,15 @@ task :metadata do
   sh "metadata-json-lint metadata.json"
 end
 
+task :puppetfile do
+  sh "r10k puppetfile check"
+end
+
 desc "Run syntax, lint, and spec tests."
 task :test => [
   :syntax,
   :lint,
   :spec,
   :metadata,
+  :puppetfile,
 ]
