@@ -68,9 +68,11 @@ class repmgr (
   }
   validate_bool($pg_manage_package_repo)
 
-  class { '::repmgr::install': }
-  #-> class { '::repmgr::config': }
-  #~> class { '::repmgr::service': }
-
+  class { '::repmgr::install':
+  }->
+  class { '::repmgr::config':
+  }~>
+  class { '::repmgr::service':
+  }
 }
 

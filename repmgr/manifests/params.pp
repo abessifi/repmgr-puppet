@@ -33,7 +33,7 @@ class repmgr::params{
             #$pg_contrib_dir = '/usr/share/postgresql/9.1/contrib'
         }
         default: {
-            fail("Unsupported Debian distribution.")
+            fail('Unsupported Debian distribution.')
         }
       }
     }
