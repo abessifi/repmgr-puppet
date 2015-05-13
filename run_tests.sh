@@ -207,8 +207,9 @@ function run_acceptance_tests(){
 # Run unittests
 function run_unittests(){
 	echo "[INFO] Running unittests.."
-	echo "Not yet ready !"
-	#bundle exec rake test
+  cd repmgr/
+	bundle exec rake spec
+  cd ..
 }
 
 function check_syntax_lint(){
