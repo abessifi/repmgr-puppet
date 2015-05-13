@@ -2,8 +2,8 @@ require 'spec_helper'
 
 SUPPORTED_PLATFORMS = [ 'Debian' ] 
 
-describe 'repmgr' do
-  let(:facts) {{ :is_virtual => 'false', :concat_basedir => '/foo' }}
+describe 'repmgr', :type => :class do
+  let(:facts) {{ :concat_basedir => '/foo' }}
   context 'supported operating systems' do
     SUPPORTED_PLATFORMS.each do |platform|
       if platform == 'Debian'
@@ -50,4 +50,21 @@ describe 'repmgr' do
       end
     end
   end
+
+  describe 'repmgr::install', :type => :class do
+    let :facts do
+	    super().merge({
+        :osfamily => 'Debian',
+        :operatingsystem => 'Debian',
+        :operatingsystemrelease => 'wheezy',
+      })
+    end
+
+    describe  'PostgreSQL server'  do
+      it { is_expected.to contain_class('postgresql::server') }
+      it { is_expected.to contain_class('postgresql::globals').that_comes_before('postgresql::server') }
+    end
+  end
+
 end
+
