@@ -22,12 +22,14 @@
 # [*pg_version*]
 #   The version of PostgreSQL server (supporting Streaming Replication) 
 #   to install/manage.
-#   Default to "undef" (install the default available PostgreSQL version).
+#   Default to "9.3" (the first available PostgreSQL version compatible with
+#   repmgr 3.0).
 #
-# [*pg_manage_package_repo*]
+# [*package_manage*]
 #   To setup the official PostgreSQL repositories on the server. Useful if
-#   "pg_version" is not on the default system repositories.
-#   Default to "false".
+#   "pg_version" is not on the default system repositories and you want to
+#   install a specific pre-build PostgreSQL and repmgr version.
+#   Default to "true".
 #
 # == Requires:
 #   Module dependencies are declared in Puppetfile file.
