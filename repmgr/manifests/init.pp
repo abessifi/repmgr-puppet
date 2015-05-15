@@ -53,20 +53,25 @@
 #
 
 class repmgr (
+  $package_name           = $repmgr::params::package_name,
   $package_ensure         = $repmgr::params::package_ensure,
+  $package_manage         = $repmgr::params::package_manage,
   $service_ensure         = $repmgr::params::service_ensure,
   $pg_version             = $repmgr::params::pg_version,
-  $pg_manage_package_repo = $repmgr::params::pg_manage_package_repo,
 ) inherits ::repmgr::params {
 
   # Validate params
   validate_string($package_ensure)
   validate_string($service_ensure)
+  validate_bool($package_manage)
   if $pg_version {
-    validate_re($pg_version,'^\d+.\d+$',
+    validate_re($pg_version,'^\d.\d$',
     "Unknown PostgreSQL version format '${pg_version}'")
   }
-  validate_bool($pg_manage_package_repo)
+  if $package_manage and ($::osfamily == 'Debian') {
+    validate_re($package_name, '^postgresql-\d.\d-repmgr$',
+    "Incorrect repmgr package name '${package_name}'")
+  }
 
   class { '::repmgr::install':
   }->
