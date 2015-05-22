@@ -6,8 +6,8 @@ case fact('osfamily')
 end
 
 describe 'repmgr::service class:', :if => SUPPORTED_PLATFORMS.include?(fact('osfamily')) do
-  describe 'PostgreSQL server' do
-		it 'sets up the service' do
+  context 'services are running by default' do
+		it 'should be running' do
       pp = "class { 'repmgr': }"
       apply_manifest(pp, :modulepath => MODULEPATH, :catch_failures => true)
 		end
@@ -15,8 +15,18 @@ describe 'repmgr::service class:', :if => SUPPORTED_PLATFORMS.include?(fact('osf
       it { should be_enabled }
       it { should be_running }
     end
-    #hosts.each do |host|
-      # test for master/slave specifications
-    #end
   end
+
+  context 'when service_ensure => stopped' do
+    it 'should be stopped' do
+      pp = "class { 'repmgr': service_ensure => stopped }"
+      apply_manifest(pp, :modulepath => MODULEPATH, :catch_failures => true)
+    end
+    describe service(pg_service_name) do
+      it { should_not be_running }
+    end
+  end
+  #hosts.each do |host|
+    # test for master/slave specifications
+  #end
 end

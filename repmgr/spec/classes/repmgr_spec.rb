@@ -1,7 +1,5 @@
 require 'spec_helper'
 
-SUPPORTED_PLATFORMS = [ 'Debian' ] 
-
 describe 'repmgr', :type => :class do
   let(:facts) {{ :concat_basedir => '/foo' }}
   context 'supported operating systems' do
@@ -31,8 +29,8 @@ describe 'repmgr', :type => :class do
         it { is_expected.to contain_class('repmgr::service').that_subscribes_to('repmgr::config') }
       end
 
-      describe 'repmgr with incorrect params values' do
-        context 'repmgr class: package_name => postgresql-rempgr' do
+      describe 'repmgr::params' do
+        context 'package_name => postgresql-rempgr' do
           let(:params) {{
             :package_name => 'postgresql-rempgr',
             :package_manage => true,
@@ -41,10 +39,28 @@ describe 'repmgr', :type => :class do
             is_expected.to raise_error(Puppet::Error, /Incorrect repmgr package name 'postgresql-rempgr'/)
           end
         end
-        context 'repmgr class: pg_version => 9.1.0' do
+
+        context 'pg_version => 9.1.0' do
           let(:params) {{ :pg_version => '9.1.0' }}
           it 'should fail if PostgreSQL version format is incorrect' do
             is_expected.to raise_error(Puppet::Error, /Unknown PostgreSQL version format '9.1.0'/)
+          end
+        end
+
+        context 'build_source => true' do
+          let(:params) {{ :build_source => true }}
+          it 'default repmgr::version should be 3.0' do
+            is_expected.to contain_class('repmgr').with('version' => '3.0')
+          end
+        end
+
+        context 'version => 3.0.1' do
+          let(:params) {{
+            :build_source => true,
+            :version => '3.0.1',
+          }}
+          it 'should fail if repmgr version format is incorrect' do
+            is_expected.to raise_error(Puppet::Error, /Unknown repmgr version format '3.0.1'/)
           end
         end
       end
@@ -55,7 +71,6 @@ describe 'repmgr', :type => :class do
     let :facts do
       super().merge({ :osfamily => 'Debian', :operatingsystem => 'Mint'})
     end
-
     it 'should fail' do
       is_expected.to raise_error(Puppet::Error, /Unsupported Debian distribution/)
     end
@@ -67,7 +82,6 @@ describe 'repmgr', :type => :class do
         :osfamily        => 'Solaris',
         :operatingsystem => 'Nexenta',
       }}
-
       it 'should fail' do
         is_expected.to raise_error(Puppet::Error, /Unsupported platform: Solaris\/Nexenta/)
       end
@@ -84,15 +98,17 @@ describe 'repmgr', :type => :class do
         :lsbdistcodename => 'wheezy',
       })
     end
-
-    describe  'default versions of PostgreSQL and repmgr'  do
+    
+    context 'default versions of PostgreSQL and repmgr'  do
       it { is_expected.to contain_class('postgresql::server').that_comes_before('Package[postgresql-9.3-repmgr]') }
       it { is_expected.to contain_class('postgresql::globals').that_comes_before('postgresql::server') }
-      it { is_expected.to contain_package('postgresql-9.3-repmgr').with(
-        'ensure' => 'present',
-      )}
+      it { is_expected.to contain_package('postgresql-9.3-repmgr').with('ensure' => 'present') }
+    end
+
+    context 'when build_source => true' do
+      let(:params) {{ :build_source => true }}
+      it { is_expected.to contain_class('repmgr::buildsource') }
     end
   end
-
 end
 

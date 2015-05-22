@@ -13,6 +13,9 @@ class repmgr::params{
   # has many usability improvements.
   $package_ensure = 'present'
   $service_ensure = 'running'
+  $version = '3.0'
+  $build_source = false
+  $source_archive_url = 'https://github.com/2ndQuadrant/repmgr/archive/REL3_0_STABLE.tar.gz'
 
   case $::osfamily {
     'Debian': {
@@ -28,6 +31,14 @@ class repmgr::params{
           else {
             $package_name = 'repmgr'
           }
+          $build_depends = [
+            'build-essential',
+            'libxslt-dev',
+            'libxml2-dev',
+            'libpam-dev',
+            'libedit-dev',
+            "postgresql-server-dev-${pg_version}"
+          ]
           # packages
           #$postgresql = 'postgresql-9.1'
           #$postgresql_contrib = 'postgresql-contrib-9.1' 
