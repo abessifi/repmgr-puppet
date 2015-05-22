@@ -3,6 +3,24 @@
 # This class is called from repmgr::install to build and install
 # repmgr from sources.
 #
+# == Parameters
+#
+# [*url*]
+# The url to the repmgr sources archive.
+#
+# [*version*]
+#   The version of repmgr to be built.
+#   Default to "3.0".
+#
+# [*pkg_format*]
+#   The format of the compressed source archive.
+#   Should be one of those ('tar', 'zip', 'bzip').
+#   Default to "tar".
+#
+# [*build_dir_path*]
+#   The path to the temporary build/working directory.
+#   Default to "/usr/local/src".
+#
 
 class repmgr::buildsource (
   $url = undef,
@@ -24,11 +42,6 @@ class repmgr::buildsource (
   }
   $archive_name = basename($url)
   $src_folder_name = "repmgr-${version}"
-  $archive_extension = $pkg_format ? {
-    'tar' => '.tar.gz',
-    'zip' => '.zip',
-    'bzip' => '.tar.bz2',
-  }
   $extract_cmd = $pkg_format ? {
     'tar'  => "tar -xzf ${archive_name} -C ${src_folder_name}\
     --strip-components 1",
@@ -69,7 +82,7 @@ class repmgr::buildsource (
   exec { 'make':
     cwd     => "${build_dir_path}/${src_folder_name}",
     command => $make_cmd,
-    #onlyif  => "test -d ${src_folder_name}",
+    onlyif  => "test -d ${build_dir_path}/${src_folder_name}",
     before  => Exec['install'],
   }
   # Install the deb/rpm package.

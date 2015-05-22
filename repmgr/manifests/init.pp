@@ -7,6 +7,10 @@
 #
 # == Parameters
 #
+# [*package_name*]
+#   The name of rempgr pre-built package to install from the (Debian, Ubuntu,
+#   Fedora, etc) OSes reporitory.
+#
 # [*package_ensure*]
 #   To manage postgresql and rempgr packages.
 #   Can be one of "present" or "absent".
@@ -30,6 +34,18 @@
 #   "pg_version" is not on the default system repositories and you want to
 #   install a specific pre-build PostgreSQL and repmgr version.
 #   Default to "true".
+#
+# [*version*]
+#   The version of repmgr to build from sources.
+#   Default "3.0".
+#
+# [*build_source*]
+#   If set to true, the repmgr package will by built and installed from sources.
+#   Default to "false".
+#
+# [*source_archive_url*]
+#   The url to the repmgr sources archive.
+#   Default to "https://github.com/2ndQuadrant/repmgr/archive/REL3_0_STABLE.tar.gz".
 #
 # == Requires:
 #   Module dependencies are declared in Puppetfile file.
