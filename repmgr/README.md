@@ -116,7 +116,7 @@ On the other hand, installing repmgr from sources is supported. Lets say we want
 	  build_source       => true,
 	}
 
-In this example, the `version` parameter **is required**.
+In this example, the `version` and `source_archive_url` parameters **are required**.
 
 ### In all nodes:
 As root, create postgres home and ssh keys directories:
