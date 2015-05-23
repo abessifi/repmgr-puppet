@@ -1,28 +1,33 @@
 require 'spec_helper'
 
 describe 'repmgr::buildsource', :type => :class do
-  context 'when url param is undef' do
-    it { is_expected.to raise_error(Puppet::Error, /Repmgr source archive url not specified !/) } 
+
+  context 'when version is invalid' do
+    let(:params) {{
+      :version => '3.0.1',	
+      :url => 'https://github.com/2ndQuadrant/repmgr/archive/REL3_0_STABLE.zip',
+    }}
+    it { is_expected.to raise_error(Puppet::Error, /Unknown repmgr version format '3.0.1'/) }
   end
 
-  context 'invalid source archive url' do
+  context 'when url is invalid' do
     let(:params) {{ :url => 'foo.bar.baz' }}
     it { is_expected.to raise_error(Puppet::Error, /Invalid url 'foo.bar.baz'/) }
   end
 
-  context 'unknown source archive format' do
-    let(:params) {{ 
-      :url => 'https://github.com/2ndQuadrant/repmgr/archive/REL3_0_STABLE.zip',
-      :pkg_format => 'rar',
+  context 'when pkg_format is not supported' do
+    let(:params) {{
+	    :version => '3.0',	
+      :url => 'https://github.com/2ndQuadrant/repmgr/archive/REL3_0_STABLE.rar',
     }}
-	  it { is_expected.to raise_error(Puppet::Error, /Archive type 'rar' not supported/) }
+	  it { is_expected.to raise_error(Puppet::Error, /Archive type not supported/) }
   end
   
-  context 'unsupported Linux platform' do
+  context 'when Linux platform is not supported' do
     let(:facts) {{ :osfamily => 'Foobar' }}
-    let(:params) {{ 
+    let(:params) {{
+	    :version => '3.0',	
       :url => 'https://github.com/2ndQuadrant/repmgr/archive/REL3_0_STABLE.zip',
-      :pkg_format => 'zip',
     }}
     it { is_expected.to raise_error(Puppet::Error, /Unsupported Linux platform 'Foobar'/) }
   end
@@ -39,7 +44,6 @@ describe 'repmgr::buildsource', :type => :class do
       :url => 'https://github.com/2ndQuadrant/repmgr/archive/REL3_0_STABLE.zip',
 	    :version => '3.0',
       :build_dir_path => '/usr/local/src',
-      :pkg_format => 'zip',
     }}
     it { is_expected.to contain_exec('download_sources').with_command('wget -q https://github.com/2ndQuadrant/repmgr/archive/REL3_0_STABLE.zip') }
     it { is_expected.to contain_exec('download_sources').that_comes_before('Exec[extract_sources]') }

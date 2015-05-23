@@ -40,28 +40,26 @@ describe 'repmgr', :type => :class do
           end
         end
 
-        context 'pg_version => 9.1.0' do
+        context 'when pg_version => 9.1.0' do
           let(:params) {{ :pg_version => '9.1.0' }}
           it 'should fail if PostgreSQL version format is incorrect' do
             is_expected.to raise_error(Puppet::Error, /Unknown PostgreSQL version format '9.1.0'/)
           end
         end
 
-        context 'build_source => true' do
+        context 'when build_source => true' do
           let(:params) {{ :build_source => true }}
-          it 'default repmgr::version should be 3.0' do
-            is_expected.to contain_class('repmgr').with('version' => '3.0')
+          it 'should fail' do
+			    is_expected.to raise_error(Puppet::Error, /You are trying to build repmgr from sources. Please set the rempgr version !/)
           end
         end
 
-        context 'version => 3.0.1' do
+        context 'when source_archive_url is undef' do
           let(:params) {{
             :build_source => true,
-            :version => '3.0.1',
+            :version => '3.0',
           }}
-          it 'should fail if repmgr version format is incorrect' do
-            is_expected.to raise_error(Puppet::Error, /Unknown repmgr version format '3.0.1'/)
-          end
+          it { is_expected.to raise_error(Puppet::Error, /Cannot find the rempgr source archive url/) } 
         end
       end
     end
@@ -106,7 +104,11 @@ describe 'repmgr', :type => :class do
     end
 
     context 'when build_source => true' do
-      let(:params) {{ :build_source => true }}
+      let(:params) {{
+		    :build_source => true,
+		    :version => '3.0',
+        :source_archive_url => 'https://github.com/2ndQuadrant/repmgr/archive/REL3_0_STABLE.zip',
+	    }}
       it { is_expected.to contain_class('repmgr::buildsource') }
     end
   end

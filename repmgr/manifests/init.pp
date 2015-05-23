@@ -96,8 +96,12 @@ class repmgr (
   }
   validate_bool($build_source)
   if $build_source {
-    validate_re($version,'^\d.\d$',
-    "Unknown repmgr version format '${version}'")
+    unless $version {
+      fail('You are trying to build repmgr from sources. Please set the rempgr version !')
+    }
+    unless $source_archive_url {
+      fail("Cannot find the rempgr source archive url. The 'source_archive_url' parameter is required.")
+    }
   }
 
   class { '::repmgr::install':

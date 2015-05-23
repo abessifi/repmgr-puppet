@@ -13,9 +13,9 @@ class repmgr::params{
   # has many usability improvements.
   $package_ensure = 'present'
   $service_ensure = 'running'
-  $version = '3.0'
+  $version = undef
   $build_source = false
-  $source_archive_url = 'https://github.com/2ndQuadrant/repmgr/archive/REL3_0_STABLE.tar.gz'
+  $source_archive_url = undef
 
   case $::osfamily {
     'Debian': {

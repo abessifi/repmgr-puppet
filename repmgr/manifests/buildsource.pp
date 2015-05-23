@@ -12,11 +12,6 @@
 #   The version of repmgr to be built.
 #   Default to "3.0".
 #
-# [*pkg_format*]
-#   The format of the compressed source archive.
-#   Should be one of those ('tar', 'zip', 'bzip').
-#   Default to "tar".
-#
 # [*build_dir_path*]
 #   The path to the temporary build/working directory.
 #   Default to "/usr/local/src".
@@ -24,23 +19,20 @@
 
 class repmgr::buildsource (
   $url = undef,
-  $version = '3.0',
-  $pkg_format = 'tar',
+  $version = undef,
   $build_dir_path = '/usr/local/src',
 ){
-
-  if $url {
-    validate_re($url, '^(http|https)://[\S]+', "Invalid url '${$url}'")
-  }
-  else {
-    fail('Repmgr source archive url not specified !')
-  }
+  # Validate class parameters
+  validate_re($url, '^(http|https)://[\S]+', "Invalid url '${$url}'.")
+  validate_re($version,'^\d.\d$', "Unknown repmgr version format '${version}'.")
   validate_absolute_path($build_dir_path)
-  
-  unless $pkg_format in ['tar', 'zip', 'bzip'] {
-    fail("Archive type '${pkg_format}' not supported.")
-  }
   $archive_name = basename($url)
+  case $archive_name {
+    /.*\.tar\.gz$/, /.*\.tgz$/: { $pkg_format = 'tar' }
+    /.*\.zip$/: { $pkg_format = 'zip' }
+    /.*\.bzip$/: { $pkg_format = 'bzip' }
+    default: { fail('Archive type not supported.') }
+  }
   $src_folder_name = "repmgr-${version}"
   $extract_cmd = $pkg_format ? {
     'tar'  => "tar -xzf ${archive_name} -C ${src_folder_name}\

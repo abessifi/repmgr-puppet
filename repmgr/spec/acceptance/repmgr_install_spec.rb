@@ -77,7 +77,13 @@ describe 'repmgr::install class:', :if => SUPPORTED_PLATFORMS.include?(fact('osf
     end
 
     it 'should succeed' do
-      pp = "class { 'repmgr': build_source => true }"
+      pp = <<-EOS
+	    class {'repmgr':
+		    build_source => true,
+        version => '3.0',
+        source_archive_url => 'https://github.com/2ndQuadrant/repmgr/archive/REL3_0_STABLE.tar.gz',
+	    }
+	    EOS
       apply_manifest(pp, :modulepath => MODULEPATH, :catch_failures => true)
     end
     describe package(repmgr_built_package_name) do
