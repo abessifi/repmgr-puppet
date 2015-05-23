@@ -71,7 +71,11 @@ To run only unittests:
 
 	$ sudo ./run_tests.sh --unittests
 
-To provision the box, preserve it and run tests:
+To check the code syntax and linting:
+
+	$ sudo ./run_tests.sh --check-syntax
+
+To provision the box, preserve it and run all tests:
 
 	$ sudo ./run_tests.sh --tests --no-destroy
 
@@ -81,24 +85,47 @@ To re-use the same box, preserve it and run tests:
 
 ## Usage
 
-If you are not using a DNS server, assert that in each host, you have a domain name resolution entry in /etc/hosts for each node. E.g :
+If you are not using a DNS server, assert that in each host, you have a domain name resolution entry in /etc/hosts for each node. E.g:
 
     192.168.1.10   node1.local node1
     192.168.1.20   node2.local node2
     192.168.1.30   node3.local node3
 
-Then, make sure that each node can reach other nodes through its short name (or fqdn) by ping or SSH.
+Then, make sure that each node can reach the others using its short name (or fqdn) by ping or SSH.
 
-Now, to deploy a PostgreSQL cluster and use repmgr automatically, follow these steps:
+
+### Basic setup
+
+To deploy a PostgreSQL cluster and use repmgr automatically, simply call the repmgr puppet class:
+
+	class { 'rempgr': }
+
+This will setup a postgresql.org repo and install the default PostgreSQL and repmgr binary packages available on it.
+Otherwise, if you want to install a specific PostgreSQL/repmgr versions you have just to setup the `version` and `pg_version` parameters of the `repmgr` class:
+
+	class { 'repmgr':
+	  version    => '2.0',
+	  pg_version => '9.1',
+	}
+
+On the other hand, installing repmgr from sources is supported. Lets say we want to build and install repmgr v3.0 from sources:
+
+	class { 'repmgr':
+	  source_archive_url => 'https://github.com/2ndQuadrant/repmgr/archive/REL3_0_STABLE.tar.gz',
+	  version            => '3.0',
+	  build_source       => true,
+	}
+
+In this example, the `version` parameter **is required**.
 
 ### In all nodes:
-As root, create postgres home and ssh keys directories :
+As root, create postgres home and ssh keys directories:
 
     # mkdir -p /var/lib/postgresql/.ssh
 
 ### In master node:
 
-If a PostgreSQL server in node1 exists already :
+If a PostgreSQL server in node1 exists already:
 
     Backup your databases
     (node1)$ pg_dump -U {username} -c {db_name} -f /somewhere/{db_name}_backup.sql
