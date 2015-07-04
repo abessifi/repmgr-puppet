@@ -156,7 +156,7 @@ function install_ruby(){
 # Install repmgr-puppet module dependencies
 function install_module_requirements(){
 	echo "[INFO] Install required gems.."
-	bundle install --gemfile repmgr/Gemfile
+	bundle install --gemfile $PUPPET_MODULE/Gemfile
 }
 
 # TODO: determine required packages on openSuse and CentOS distros.
@@ -207,14 +207,14 @@ function run_acceptance_tests(){
 # Run unittests
 function run_unittests(){
 	echo "[INFO] Running unittests.."
-  cd repmgr/
+  cd $PUPPET_MODULE/
 	bundle exec rake spec
   cd ..
 }
 
 function check_syntax_lint(){
 	echo "[INFO] Running syntax check and linting.."
-	cd repmgr/
+	cd $PUPPET_MODULE/
 	bundle exec rake validate
     cd ..
 }
